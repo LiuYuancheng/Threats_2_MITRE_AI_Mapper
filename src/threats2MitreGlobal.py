@@ -7,7 +7,7 @@
 # Author:      Yuancheng Liu
 #
 # Created:     2024/02/26
-# Version:     v_0.1.2
+# Version:     v_0.1.0
 # Copyright:   Copyright (c) 2023 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ import os, sys
 print("Current working directory is : %s" % os.getcwd())
 DIR_PATH = dirpath = os.path.dirname(__file__) if os.path.dirname(__file__) else os.getcwd()
 print("Current source code location : %s" % dirpath)
-APP_NAME = ('OpenAI', 'mitre_mapper')
+APP_NAME = ('OpenAI', 'threats2Mitre')
 
 TOPDIR = 'src'
 LIBDIR = 'lib'
@@ -78,7 +78,7 @@ AI_MODEL = CONFIG_DICT['AI_MODEL']
 # Attack scenario analyze prompt to parse the attack behaviors
 gSceAnalysePrompt="""
 Check the given cyber attack scenario description and split the attack flow path to a 
-list of attack behaviors.Please use the following format: 
+list of attack behaviors. Please use the following format: 
 Attack behavior:
 1.attack behavior 1
 2.attack behavior 2
@@ -101,8 +101,8 @@ Verify whether the given MITRE ATT&CK technique can be found from the attack sce
 
 Description and give a short explanation about the given technique can match
 which part of the scenario description. Please use the below answer format:
-Match: Yes/No
-Explanation: <Given technique can match which part of the scenario description>
+match: Yes/No
+explanation: <Given technique can match which part of the scenario description>
 """
 
 # Prompt used to test map scenario directly to the  
