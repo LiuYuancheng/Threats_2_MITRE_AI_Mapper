@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #-----------------------------------------------------------------------------
-# Name:        mitreMapperUtils.py
+# Name:        threats2MitreUtils.py
 #
 # Purpose:     This module will provide two LLM-AI MITRE frame work
 #              

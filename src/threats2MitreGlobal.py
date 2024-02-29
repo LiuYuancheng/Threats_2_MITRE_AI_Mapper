@@ -75,6 +75,9 @@ os.environ["OPENAI_API_KEY"] = API_KEY
 AI_MODEL = CONFIG_DICT['AI_MODEL']
 
 
+#-----------------------------------------------------------------------------
+SCE_BANK = os.path.join(dirpath, CONFIG_DICT['SCE_BANK']) if 'SCE_BANK' in CONFIG_DICT.keys() else dirpath 
+
 # Attack scenario analyze prompt to parse the attack behaviors
 gSceAnalysePrompt="""
 Check the given cyber attack scenario description and split the attack flow path to a 
