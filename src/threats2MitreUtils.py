@@ -2,8 +2,11 @@
 #-----------------------------------------------------------------------------
 # Name:        threats2MitreUtils.py
 #
-# Purpose:     This module will provide two LLM-AI MITRE frame work
-#              
+# Purpose:     This module will provide two LLM-AI MITRE frame work mapper module
+#              - llmMITREMapper : map the attack scenario attack flow path to the 
+#                   MITRE ATT&CK Matrix to get the related tactic and technique.
+#              - llmMITREMatcher ; match the vulnerbilities appeared in the attack
+#                   scenario to MITRE CWE frame work to get the related CWE. 
 #                
 # Author:      Yuancheng Liu
 #
@@ -14,8 +17,6 @@
 #-----------------------------------------------------------------------------
 
 import os
-import time
-import json
 
 # load the langchain libs
 from langchain.llms import OpenAI
@@ -42,18 +43,18 @@ class CommaSeparatedListOutputParser(BaseOutputParser):
 
 #-----------------------------------------------------------------------------
 class llmMITREMapper(object):
-    """ MCQ solving module. """
-
+    """ A LLM-AI mapper program map the attack scenario attack flow path to the 
+        MITRE ATT&CK Matrix to get the related tactic and technique.
+    """
     def __init__(self, openAIkey=None) -> None:
         # init the openAI conersation 
         if openAIkey: os.environ["OPENAI_API_KEY"] = openAIkey
         self.llm = ChatOpenAI(temperature=0, model_name=gv.AI_MODEL)
-
         self.llmAnalyzerChain = None 
         self._initASDAnalyzer()
 
-        self.llmMaperChain = None 
-        self._initASDMapper()
+        #self.llmMaperChain = None 
+        #self._initASDMapper()
 
         self.llmActMapperChain = None 
         self._initActionMapper()
@@ -62,10 +63,11 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def _initASDAnalyzer(self, systemTemplate=gv.gSceAnalysePrompt):
-        """ Init the attack action and behavior analyser chain.
+        """ Init the attack scenario description(ASD) analyze chain used to parse the 
+            attack flow path behaviors.
         """
         sysTemplate = SystemMessagePromptTemplate.from_template(systemTemplate)
-        human_template = "Attack Scenario : {text}"
+        human_template = "Attack Scenario: {text}"
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
         chat_prompt = ChatPromptTemplate.from_messages([sysTemplate, human_message_prompt])
         self.llmAnalyzerChain = LLMChain(llm=self.llm, 
@@ -74,6 +76,7 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def _initASDMapper(self, systemTemplate=gv.gSce2MitrePrompt):
+        
         sysTemplate = SystemMessagePromptTemplate.from_template(systemTemplate)
         human_template = "{text}"
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
@@ -174,7 +177,7 @@ class llmMITREMapper(object):
         if self.llmTecVerifyChain:
             rstDict = {'match': False , 'detail': None }
             answerList = self.llmTecVerifyChain.run(technique)
-            print(answerList)
+            #print(answerList)
             for ansStr in answerList:
                 ansStr = ansStr.strip()
                 if ansStr.lower().startswith('match' ):

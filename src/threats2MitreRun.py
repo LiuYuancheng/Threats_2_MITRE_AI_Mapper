@@ -97,7 +97,8 @@ class threats2MitreMapper(object):
 #-----------------------------------------------------------------------------
 def main():
     threatsAnalyzer = threats2MitreMapper()
-    scenarioFile = 'maliciousMacroReport.txt'
+    #scenarioFile = 'maliciousMacroReport.txt'
+    scenarioFile = 'railwayITattackReport.txt'
     threatsAnalyzer.processScenarioFile(scenarioFile)
 
 

@@ -1,8 +1,9 @@
 #-----------------------------------------------------------------------------
 # Name:        threats2MitreGlobal.py
 #
-# Purpose:     This module is used as a local config file to set constants, 
-#              global parameters which will be used in the other modules.
+# Purpose:     This module is used as a project global config file to set the 
+#              constants, parameters and instances which will be used in the 
+#              other modules in the project.
 #              
 # Author:      Yuancheng Liu
 #
@@ -12,10 +13,10 @@
 # License:     MIT License
 #-----------------------------------------------------------------------------
 """
-For good coding practice, follow the following naming convention:
-    1) Global variables should be defined with initial character 'g'
-    2) Global instances should be defined with initial character 'i'
-    2) Global CONSTANTS should be defined with UPPER_CASE letters
+For good coding practice, follow the below naming convention:
+    1) Global variables should be defined with initial character 'g'.
+    2) Global instances should be defined with initial character 'i'.
+    3) Global CONSTANTS should be defined with UPPER_CASE letters.
 """
 
 import os, sys
@@ -29,16 +30,28 @@ TOPDIR = 'src'
 LIBDIR = 'lib'
 
 #-----------------------------------------------------------------------------
-# Init the logger:
+# find the lib folder for importing the library modules
 idx = dirpath.find(TOPDIR)
 gTopDir = dirpath[:idx + len(TOPDIR)] if idx != -1 else dirpath   # found it - truncate right after TOPDIR
 # Config the lib folder 
 gLibDir = os.path.join(gTopDir, LIBDIR)
-if os.path.exists(gLibDir):
-    sys.path.insert(0, gLibDir)
+if os.path.exists(gLibDir): sys.path.insert(0, gLibDir)
+
+#-----------------------------------------------------------------------------
+# load the config file.
+import ConfigLoader
+CONFIG_FILE_NAME = 'config.txt'
+gGonfigPath = os.path.join(dirpath, CONFIG_FILE_NAME)
+iConfigLoader = ConfigLoader.ConfigLoader(gGonfigPath, mode='r')
+if iConfigLoader is None:
+    print("Error: The config file %s is not exist.Program exit!" %str(gGonfigPath))
+    exit()
+CONFIG_DICT = iConfigLoader.getJson()
+
+#-----------------------------------------------------------------------------
+# Init the logger
 import Log
 Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLogsUnderDate=True)
-
 # Init the log type parameters.
 DEBUG_FLG   = False
 LOG_INFO    = 0
@@ -58,27 +71,18 @@ def gDebugPrint(msg, prt=True, logType=None):
         Log.info(msg)
 
 #-----------------------------------------------------------------------------
-# load the config file.
-import ConfigLoader
-CONFIG_FILE_NAME = 'config.txt'
-gGonfigPath = os.path.join(dirpath, CONFIG_FILE_NAME)
-iConfigLoader = ConfigLoader.ConfigLoader(gGonfigPath, mode='r')
-if iConfigLoader is None:
-    print("Error: The config file %s is not exist.Program exit!" %str(gGonfigPath))
-    exit()
-CONFIG_DICT = iConfigLoader.getJson()
-
-#-----------------------------------------------------------------------------
 # Init the openAI parameters.
 API_KEY = CONFIG_DICT['API_KEY']
 os.environ["OPENAI_API_KEY"] = API_KEY
 AI_MODEL = CONFIG_DICT['AI_MODEL']
 
-
-#-----------------------------------------------------------------------------
+# Init the attack scenario storage folder
 SCE_BANK = os.path.join(dirpath, CONFIG_DICT['SCE_BANK']) if 'SCE_BANK' in CONFIG_DICT.keys() else dirpath 
 
-# Attack scenario analyze prompt to parse the attack behaviors
+#-----------------------------------------------------------------------------
+# Init all the prompt
+
+# Prompt use to guide AI to analyze the attack scenario to parse the attack behaviors. 
 gSceAnalysePrompt="""
 Check the given cyber attack scenario description and split the attack flow path to a 
 list of attack behaviors. Please use the following format: 
@@ -88,7 +92,7 @@ Attack behavior:
 ...
 """
 
-# Prompt used to map behaviours to the MITRE tactic and technique
+# Prompt used to guide AI to map behaviors to the MITRE tactic and technique
 gBeh2MitrePrompt = """
 You are a helpful assistant who help mapping the cyber attack behavior description to the 
 tactic and technique in MITRE Adversarial Tactics, Techniques, and Common Knowledge (ATT&CK) Enterprise Matrix
@@ -97,7 +101,8 @@ tactic:
 technique: 
 """
 
-# Prompt used to verify whether the technique can be applied/found direcly to the attack scenario.
+# Prompt used to guide AI to verify whether the technique can be applied/found directly
+# to/from the attack scenario.
 gMitreVerifyPrompt = """
 Verify whether the given MITRE ATT&CK technique can be found from the attack scenario: 
 %s
@@ -108,7 +113,7 @@ match: Yes/No
 explanation: <Given technique can match which part of the scenario description>
 """
 
-# Prompt used to test map scenario directly to the  
+# Prompt used to guide AI to map scenario contents directly to the MITRE ATT&CK  
 gSce2MitrePrompt = """
 You are a helpful assistant who help mapping the cyber attack scenario description's 
 attack behavior to the tactic and technique in MITRE Adversarial Tactics, Techniques, 
