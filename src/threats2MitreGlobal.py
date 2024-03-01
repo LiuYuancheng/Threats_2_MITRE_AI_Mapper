@@ -110,7 +110,7 @@ Verify whether the given MITRE ATT&CK technique can be found from the attack sce
 Description and give a short explanation about the given technique can match
 which part of the scenario description. Please use the below answer format:
 match: Yes/No
-explanation: <Given technique can match which part of the scenario description>
+explanation: <Given short summary about the technique can match which part of the scenario description>
 """
 
 # Prompt used to guide AI to map scenario contents directly to the MITRE ATT&CK  
@@ -120,3 +120,21 @@ attack behavior to the tactic and technique in MITRE Adversarial Tactics, Techni
 and Common Knowledge (ATT&CK) Enterprise Matrix. Please list tactic and technique in Enterprise Matrix.
 """
 
+# Prompt used to guide AI to find the MITRE CWE
+gSceVulCheckPrompt_old = """
+You are a helpful assistant who help analyzing the attack scenario description and finding
+the vulnerabilities. Match the vulnerabilities to the MITRE Common Weakness Enumeration and give 
+a short explanation. Please list the matched MITRE CWE under the following format:
+MITRE_CWE: CWE-<number>
+- vulnerability: <vulnerability name>
+- explanation:  <Give a short summary about how the CWE match to the attack scenario>
+"""
+
+gSceVulCheckPrompt = """
+You are a helpful assistant who help analyzing the attack scenario description and finding
+the vulnerabilities. Match the vulnerabilities to the MITRE Common Weakness Enumeration and give 
+a short explanation. Please list the matched MITRE CWE under the following format:
+MITRE_CWE: CWE-<number>
+- CWE_Name: <MITRE CWE name>
+- vulnerability: short summary of the vulnerability in the scenario can match the CWE
+"""

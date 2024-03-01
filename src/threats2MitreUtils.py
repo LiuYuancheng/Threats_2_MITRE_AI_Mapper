@@ -15,7 +15,12 @@
 # Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
-
+""" Program design: we want to use the AI-LLM to help to process the threats 
+scenario description document such as (technical blog, CTI report, cyber attack 
+training note) to summarize the attack flow path in the material, then parse the 
+cyber attack behaviors from the attack and map each the single attack behaviors 
+to the MITRE ATT&CK Matrix to find the related attack tactic and technique.  
+"""
 import os
 
 # load the langchain libs
@@ -40,6 +45,45 @@ class CommaSeparatedListOutputParser(BaseOutputParser):
     def parse(self, text: str):
         """Parse the output of an LLM call."""
         return text.strip().split("\n")
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+class llmMITRECWEMatcher(object):
+    """ A LLM-AI matcher program find the possible vulnerabilities in the 
+        attack scenario description and mathc to the MITRE CWD framework. 
+    """
+    def __init__(self, openAIkey=None) -> None:
+        if openAIkey: os.environ["OPENAI_API_KEY"] = openAIkey
+        self.llm = ChatOpenAI(temperature=0, model_name=gv.AI_MODEL)
+        self.llmAnalyzerChain = None 
+        self._initASDAnalyzer()
+
+    #-----------------------------------------------------------------------------
+    def _initASDAnalyzer(self, systemTemplate=gv.gSceVulCheckPrompt):
+        """ Init the attack scenario description(ASD) analyze chain used to parse the 
+            attack flow path behaviors.
+        """
+        sysTemplate = SystemMessagePromptTemplate.from_template(systemTemplate)
+        human_template = "Attack Scenario: {text}"
+        human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+        chat_prompt = ChatPromptTemplate.from_messages([sysTemplate, human_message_prompt])
+        self.llmAnalyzerChain = LLMChain(llm=self.llm, 
+                            prompt=chat_prompt, 
+                            output_parser=CommaSeparatedListOutputParser())
+
+    #-----------------------------------------------------------------------------
+    def getCWEInfo(self, scenarioStr):
+        """ Use AI to summarize the attack scenario report and split the attack 
+            flow path to a list of single element attack behaviors.
+            Args:
+                scenarioStr (str): attack scenario description string
+            Returns:
+                list(str): list of attack behaviors.
+        """
+        gv.gDebugPrint("getAttackInfo() > Start to summarize the attack flow path.")
+        answerList = self.llmAnalyzerChain.run(scenarioStr)
+        for answer in answerList:
+            print(answer)
 
 #-----------------------------------------------------------------------------
 class llmMITREMapper(object):
@@ -220,6 +264,7 @@ class llmMITREMapper(object):
 #-----------------------------------------------------------------------------
 def testCase(mode):
     mapper = llmMITREMapper(openAIkey=gv.API_KEY)
+    matcher = llmMITRECWEMatcher(openAIkey=gv.API_KEY)
     # Add the test threats scenario description string.
     scenarioStr = """This scenario illustrates how the red team attacker, Alice, 
     constructs a malicious macro within a MS-Office Word document (CVE-2015-1641). 
@@ -253,6 +298,9 @@ def testCase(mode):
             rst = mapper.verifyAttackTechnique(tech)
             print(rst)
             print("---")
+    elif mode == 5:
+        print("get vulnerability")
+        matcher.getCWEInfo(scenarioStr)
     else:
         pass 
         # put other test case here
