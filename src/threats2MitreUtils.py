@@ -53,13 +53,13 @@ class llmMITREMapper(object):
         self.llmAnalyzerChain = None 
         self._initASDAnalyzer()
 
-        #self.llmMaperChain = None 
-        #self._initASDMapper()
-
         self.llmActMapperChain = None 
         self._initActionMapper()
 
         self.llmTecVerifyChain = None
+
+        #self.llmMaperChain = None 
+        #self._initASDMapper()
 
     #-----------------------------------------------------------------------------
     def _initASDAnalyzer(self, systemTemplate=gv.gSceAnalysePrompt):
@@ -76,7 +76,6 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def _initASDMapper(self, systemTemplate=gv.gSce2MitrePrompt):
-        
         sysTemplate = SystemMessagePromptTemplate.from_template(systemTemplate)
         human_template = "{text}"
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
@@ -87,6 +86,9 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def _initActionMapper(self, systemTemplate=gv.gBeh2MitrePrompt):
+        """ Init the attack action mapping chain used to map the malicious behaivors  
+            to the MITRE ATT&CK tactic and technique.
+        """
         sysTemplate = SystemMessagePromptTemplate.from_template(systemTemplate)
         human_template = "{text}"
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
@@ -97,6 +99,10 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def setVerifier(self, scenarioStr, verifyTemplate=gv.gMitreVerifyPrompt):
+        """ Init the scenario technique verifier.
+            Args:
+                scenarioStr (str): orignal attack scenario description(ASD) string
+        """
         self.llmTecVerifyChain = None 
         systemTemplate = verifyTemplate %str(scenarioStr)
         sysTemplate = SystemMessagePromptTemplate.from_template(systemTemplate)
@@ -109,8 +115,8 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def getAttackInfo(self, scenarioStr):
-        """ Use AI to summarized the attack scenario report and split the attack 
-            flow path to a list of attack behaviors.
+        """ Use AI to summarize the attack scenario report and split the attack 
+            flow path to a list of single element attack behaviors.
             Args:
                 scenarioStr (str): attack scenario description string
             Returns:
@@ -127,16 +133,14 @@ class llmMITREMapper(object):
             elif '.' in ansStr:
                 idx = str(ansStr.split('.')[0])
                 if idx.isdigit(): actionList.append(ansStr)
-            else:
+            elif len(actionList) > 0:
                 # the answer is splitted in 2 lines by the LLM, append the line to the previous
-                if len(actionList) > 0:
-                    actionList[-1] += ansStr
+                actionList[-1] += ansStr
         return actionList
 
     #-----------------------------------------------------------------------------
-    def getAttackTTP(self, scenarioStr):
+    def testAttackTTP(self, scenarioStr):
         """ Get the MITRE ATT&CK TTP for a given scenario. """
-        
         answerList = self.llmMaperChain.run(scenarioStr)
         print(answerList)
         for ansStr in answerList:
@@ -144,6 +148,17 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def getAttackTechnique(self, behaviorList):
+        """ Check a list of attack behaviors and get the technique list.
+            Args:
+                behaviorList (list(str)): behaviors string list.
+            Returns:
+                dict: {<tactic:tacticNae>:[list of technique] }
+                example:
+                {
+                    'tactic: Initial Access': 
+                        ['technique: Spearphishing Attachment (T1193)', 
+                        'technique: Drive-by Compromise (T1189)']}
+        """
         resultDict = {}
         for behaviorStr in behaviorList:
             rstDict = self.getBehaviorTechnique(behaviorStr)
@@ -160,7 +175,12 @@ class llmMITREMapper(object):
     
     #-----------------------------------------------------------------------------
     def getBehaviorTechnique(self, behaviorStr):
-        """ Get the MITRE ATT&CK TTP for a given behaviors. """
+        """ Use AI to getthe MITRE ATT&CK TTP for a given behaviors. 
+            Args:
+                behaviorStr (str): _description_
+            Returns:
+                dict : { 'tactic': None, 'technique': [] }
+        """
         answerList = self.llmActMapperChain.run(behaviorStr)
         ttDict = { 'tactic': None, 'technique': [] }
         #print(answerList)
@@ -174,6 +194,13 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def verifyAttackTechnique(self, technique):
+        """ Verify whether the technique can be find from the orignal attack scenario
+            description (ASD)
+            Args:
+                technique (string): _description_
+            Returns:
+                _type_: _description_
+        """
         if self.llmTecVerifyChain:
             rstDict = {'match': False , 'detail': None }
             answerList = self.llmTecVerifyChain.run(technique)
@@ -193,6 +220,7 @@ class llmMITREMapper(object):
 #-----------------------------------------------------------------------------
 def testCase(mode):
     mapper = llmMITREMapper(openAIkey=gv.API_KEY)
+    # Add the test threats scenario description string.
     scenarioStr = """This scenario illustrates how the red team attacker, Alice, 
     constructs a malicious macro within a MS-Office Word document (CVE-2015-1641). 
     She then embeds an auto-phishing email malware into the document, disguising all 
@@ -231,5 +259,7 @@ def testCase(mode):
 
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':
-    testmode = 2
+    print("Please type in the test case number you want to run: ")
+    uInput = str(input())
+    testmode = int(uInput)
     testCase(testmode)
