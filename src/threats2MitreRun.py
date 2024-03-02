@@ -18,7 +18,65 @@ import os
 import json
 
 import threats2MitreGlobal as gv
-from threats2MitreUtils import llmMITREMapper
+from threats2MitreUtils import llmMITREMapper, llmMITRECWEMatcher
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+def loadScenarioFromFile(scenarioFile):
+    """ Read the attack scenario from a text format file.
+        Args:
+            scenarioFile (str): fileName. The file need to be put in the scenario
+                bank folder defined in the config file.
+    """
+    filePath = os.path.join(gv.SCE_BANK, scenarioFile)
+    scenarioStr = None 
+    if os.path.exists(filePath):
+        try:
+            with open(filePath, 'r') as fh:
+                scenarioStr = fh.read()
+            return scenarioStr
+        except Exception as err:
+            gv.gDebugPrint("loadScenarioFromFile(): Error open the scenario file: %s" %str(err), 
+                            logType=gv.LOG_ERR)
+            return None 
+    else:
+        gv.gDebugPrint("Scenario file not exist: %s" %str(filePath), 
+                        logType=gv.LOG_WARN)
+    return scenarioStr
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+class threats2CWEMatcher(object):
+
+    def __init__(self, openAIkey=gv.API_KEY) -> None:
+        self.openAIkey = openAIkey
+        os.environ["OPENAI_API_KEY"] = openAIkey
+        self.cweMatch = llmMITRECWEMatcher(openAIkey=self.openAIkey)
+        gv.gDebugPrint("threats2CWEMatcher init finished")
+
+    #-----------------------------------------------------------------------------
+    def processScenarioFile(self, scenarioFile):
+        gv.gDebugPrint("Start to process scenario file: %s" %str(scenarioFile),
+                logType=gv.LOG_INFO)
+        resultDict = {}
+        # 1. load thread scenario description file. 
+        secContent = loadScenarioFromFile(scenarioFile)
+        if secContent is None: return
+        resultDict['ScenarioName'] = scenarioFile
+        gv.gDebugPrint("Step1: Scenario load ready.", logType=gv.LOG_INFO)
+
+
+        gv.gDebugPrint("Step2: Summarize scenario and get attack behaviors list.", 
+                       logType=gv.LOG_INFO)
+        matchRst = self.cweMatch.getCWEInfo(secContent)
+
+        # 5. Generate the mapping result report.
+        gv.gDebugPrint("Step3: Generate the report file", logType=gv.LOG_INFO)
+        resultJson = json.dumps(matchRst, indent=4)
+        reportFile = str(scenarioFile).replace('.txt', '_Cwe.json')
+        reportPath= os.path.join(gv.dirpath, reportFile)
+        with open(reportPath, "w") as outfile:
+            outfile.write(resultJson)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -32,29 +90,6 @@ class threats2MitreMapper(object):
         gv.gDebugPrint("threats2MitreMapper init finished")
 
     #-----------------------------------------------------------------------------
-    def loadScenarioFromFile(self, scenarioFile):
-        """ Read the attack scenario from a text format file.
-            Args:
-                scenarioFile (str): fileName. The file need to be put in the scenario
-                    bank folder defined in the config file.
-        """
-        filePath = os.path.join(gv.SCE_BANK, scenarioFile)
-        scenarioStr = None 
-        if os.path.exists(filePath):
-            try:
-                with open(filePath, 'r') as fh:
-                    scenarioStr = fh.read()
-                return scenarioStr
-            except Exception as err:
-                gv.gDebugPrint("loadScenarioFromFile(): Error open the scenario file: %s" %str(err), 
-                               logType=gv.LOG_ERR)
-                return None 
-        else:
-            gv.gDebugPrint("Scenario file not exist: %s" %str(filePath), 
-                           logType=gv.LOG_WARN)
-        return scenarioStr
-    
-    #-----------------------------------------------------------------------------
     def processScenarioFile(self, scenarioFile):
         """ Process the input threats scenario description file and generate the
             MITRE mapping report(json format) in the current execution foler. 
@@ -65,7 +100,7 @@ class threats2MitreMapper(object):
                        logType=gv.LOG_INFO)
         resultDict = {}
         # 1. load thread scenario description file. 
-        secContent = self.loadScenarioFromFile(scenarioFile)
+        secContent = loadScenarioFromFile(scenarioFile)
         if secContent is None: return
         resultDict['ScenarioName'] = scenarioFile
         gv.gDebugPrint("Step1: Scenario load ready.", logType=gv.LOG_INFO)
@@ -101,26 +136,34 @@ class threats2MitreMapper(object):
         # 5. Generate the mapping result report.
         gv.gDebugPrint("Step5: Generate the report file", logType=gv.LOG_INFO)
         resultJson = json.dumps(resultDict, indent=4)
-        reportFile = str(scenarioFile).replace('.txt', '.json')
+        reportFile = str(scenarioFile).replace('.txt', '_Atk.json')
         reportPath= os.path.join(gv.dirpath, reportFile)
         with open(reportPath, "w") as outfile:
             outfile.write(resultJson)
 
 #-----------------------------------------------------------------------------
 def main():
-    threatsAnalyzer = threats2MitreMapper()
+    threatsMapper = threats2MitreMapper()
+    threatsMatcher = threats2CWEMatcher()
     #scenarioFile = 'maliciousMacroReport.txt'
     # scenarioFile = 'railwayITattackReport.txt'
     while True:
         print("***\nPlease type in the threats fileName you want to process: ")
         uInput = str(input())
-        if uInput.lower() == 'exit' or uInput.lower() == 'q':
+        scenarioFile = uInput
+        if scenarioFile.lower() == 'exit' or scenarioFile.lower() == 'q':
             print('Exist...')
             break
-
-        scenarioFile = uInput
-        threatsAnalyzer.processScenarioFile(scenarioFile)
-
+        print("Select the AI-LLM data process program 1.MITRE-ATT&CK-Mapper, 2.MITRE-CWE-Matcher")
+        uInput = str(input())
+        if uInput == '1':
+            threatsMapper.processScenarioFile(scenarioFile)
+        elif uInput == '2':
+            threatsMatcher.processScenarioFile(scenarioFile)
+        else:
+            print("Invalid input, please try again.")
+            continue
+        
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':
     main()

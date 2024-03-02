@@ -81,9 +81,25 @@ class llmMITRECWEMatcher(object):
                 list(str): list of attack behaviors.
         """
         gv.gDebugPrint("getAttackInfo() > Start to summarize the attack flow path.")
+        resultDict = {}
         answerList = self.llmAnalyzerChain.run(scenarioStr)
-        for answer in answerList:
-            print(answer)
+        for ansStr in answerList:
+            ansStr = ansStr.strip()
+            if ansStr == '' or ansStr == '\n':continue
+            if ansStr.startswith('MITRE_CWE'):
+                cweKey = str(ansStr.split(':')[1]).strip()
+                if not cweKey in resultDict.keys():
+                    resultDict[cweKey] = {
+                        'CWE_Name': '',
+                        'vulnerability': []
+                    }
+            elif ansStr.startswith('- CWE_Name'):
+                cweName = str(ansStr.split(':')[1]).strip()
+                resultDict[cweKey]['CWE_Name'] = cweName
+            elif ansStr.startswith('- vulnerability'):
+                cweMatch = str(ansStr.split(':')[1]).strip()
+                resultDict[cweKey]['vulnerability'].append(cweMatch)
+        return resultDict
 
 #-----------------------------------------------------------------------------
 class llmMITREMapper(object):
@@ -299,8 +315,9 @@ def testCase(mode):
             print(rst)
             print("---")
     elif mode == 5:
-        print("get vulnerability")
-        matcher.getCWEInfo(scenarioStr)
+        print("Test Case 5: start to check vulnerability")
+        rst = matcher.getCWEInfo(scenarioStr)
+        print(rst)
     else:
         pass 
         # put other test case here
