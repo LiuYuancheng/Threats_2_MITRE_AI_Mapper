@@ -1,0 +1,12 @@
+# This is the config file template for the module <mcqGptBot.py>
+# Setup the parameter with below format (every line follow <key>:<val> format, the
+# key cannot be changed):
+
+# set openAI API key
+API_KEY:
+
+# select the AI model apply to the mcq.
+AI_MODEL:gpt-3.5-turbo-16k
+
+# Scneario Bank folder 
+SCE_BANK:ScenarioBank

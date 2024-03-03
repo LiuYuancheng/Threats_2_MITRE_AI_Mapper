@@ -1,0 +1,6 @@
+a hacker utilizes a phishing email and fake software update installer to circumvent the company's firewall, gaining access to the internal network from the internet. The fake update installer deploys a trojan to pilfer security information and inject and execute other OT attack malware within the company's protected ICS network.
+The attack roadmap outlines four steps the hacker will take to execute the attack process, employing four distinct malware:
+1. A phishing email generator camouflaged as a normal document.
+2. A fake system software update installer designed to harvest user information and insert the backdoor trojan.
+3. A backdoor trojan enabling remote control of the victim's VM.
+4. A trojan connector facilitating connection to the trojan for remote control of the victim's VM.

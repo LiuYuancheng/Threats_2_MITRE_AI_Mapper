@@ -98,22 +98,24 @@
   <li class="list-group-item">
     <h4> Step 3. Process the Threats description by AI-LLM</h4>
     {% if posts is not none and 'filename' in posts %}
-    <p> <b> Current uploaded src: </b> {{ posts['filename'] }} </p>
-    <form id="startprocess" method="POST" action="#"><input type="submit" value="Start"></form>
-    <div class="spinner-border text-primary" id="progspinner" style="display: none;"> </div>
+    
+      <div class="d-flex flex-row">
+        <div class="p-2"><b> Current uploaded src: </b> {{ posts['filename'] }} </div>
+        <div class="p-2"><form id="startprocess" method="POST" action="#"><input type="submit" value="Start"></form></div>
+        <div class="p-2"><div class="spinner-border text-primary" id="progspinner" style="display: none;"> </div></div>
+      </div>
+    
     {% else %}
       <p> Please upload or insert a MCQ source in step 1 </p>
     {% endif %}
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark">  
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="#section1">Process Log 
-            
-          </a>
+          <a class="nav-link" href="#section1">Threats report process process:  </a>
         </li>
       </ul>
     </nav>
-    <div id="section1" class="container-fluid bg-info">
+    <div id="section1" class="container-fluid bg-secondary">
       <div id="log"></div>
     </div>
   </li>
@@ -169,7 +171,7 @@
       var url = URL.createObjectURL(blob);
       var link = document.createElement('a');
       link.href = url;
-      link.download = data.filename + '.txt';
+      link.download = data.filename + '_ATK_Rst.json';
       link.click();
       URL.revokeObjectURL(link.href);
     })
