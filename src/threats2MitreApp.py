@@ -97,7 +97,7 @@ def fileupload():
 @socketio.event
 def connect():
     gv.gWeblogCount = 0
-    emit('serv_response', {'data': 'MCQ-Solver Ready', 'count': gv.gWeblogCount})
+    emit('serv_response', {'data': 'MITRE-ATT&CK Mapper Ready', 'count': gv.gWeblogCount})
 
 @socketio.event
 def cli_request(message):

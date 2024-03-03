@@ -1,12 +1,16 @@
-# This is the config file template for the module <mcqGptBot.py>
+# This is the config file template for the module <threats2MitreUtils.py>
 # Setup the parameter with below format (every line follow <key>:<val> format, the
 # key cannot be changed):
 
 # set openAI API key
-API_KEY:
+API_KEY:<openAI key>
 
-# select the AI model apply to the mcq.
-AI_MODEL:gpt-3.5-turbo-16k
+# set the AI model apply to the mapper.
+AI_MODEL:<GPT-4>
 
-# Scneario Bank folder 
+# set the AI model apply to the verifier, if not set program will use the same as the mapper.
+VF_KEY:<openAI key>
+AI_MODEL:<gpt-3.5-turbo-16k>
+
+# Scenario bank folder (folder to store the threats report srource)
 SCE_BANK:ScenarioBank
