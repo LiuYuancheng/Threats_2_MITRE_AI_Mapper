@@ -1,0 +1,198 @@
+{% extends 'mgmbase.html' %}
+
+{% block title %} MCQ Solver Bot {% endblock %}
+
+{% block style%}
+<style>
+  /* Make the image fully responsive 
+  .carousel-inner img {
+    width: 100%;
+    height: 50%;
+  }*/
+</style>
+
+{% endblock %}
+
+{% block mgmContent %}
+
+<ul class="list-group">
+
+  <li class="list-group-item">
+    <h3>  
+      <img src="{{url_for('static', filename='img/mitreAtklogo.png')}}" style="height:40px;"> MITRE-ATT&CK Mapper 
+    </h3>
+  </li>
+
+  <li class="list-group-item">
+    <h4> Step 1. Select the langChain AI LLM API Module </h4>
+    <form name="modeselect" action="/mdselect" method="POST"  onsubmit="">
+      Set the Mapper AI Module : 
+      <div class="form-check form-check-inline">
+        <input type="radio" name="options" id="option1" value="mode1" > Mode-1 : Open-AI GPT-4  <br>
+      </div>
+      <div class="form-check form-check-inline">
+        <input type="radio" name="options" id="option2" value="mode2"> Mode-2 : Open-AI GPT-3.5 Turbo <br>
+      </div>
+      <br>
+      Set the Verifier AI Module :
+      <div class="form-check form-check-inline">
+        <input type="radio" name="options1" > Mode-1 : Open-AI GPT-4  <br>
+      </div>
+      <div class="form-check form-check-inline">
+        <input type="radio" name="options1"> Mode-2 : Open-AI GPT-3.5 Turbo <br>
+      </div>
+      <p> Current mapper LLM mode: 
+        <b>
+          {% if posts is none %}
+            Mode-1
+          {% elif 'mode' in posts %}
+            Mode-{{posts['mode']}}
+          {%else%}
+            Mode-1
+          {% endif %}
+        </b>
+        ; Verifier LLM mode: <b> GPT-3 Turbo </b>
+      </p>
+    </form>
+  </li>
+
+  <li class="list-group-item">
+    <h4> Step 2. Select the Threats Decription Source: </h4>
+
+    <div class="form-check form-check-inline">
+      <input type="radio" class="custom-control-input" id="customRadio1" name="example" value="customEx"
+        onchange="toggleDiv('customRadio1')">
+      <label class="custom-control-label" for="customRadio1"> Upload threats description text file </label>
+    </div>
+
+    <div class="form-check form-check-inline">
+      <input type="radio" class="custom-control-input" id="customRadio2" name="example" value="customEx"
+        onchange="toggleDiv('customRadio2')">
+      <label class="custom-control-label" for="customRadio2"> Copy threats description contents directly </label>
+    </div>
+
+    <p> </p>
+
+    <div id="content_1" style="display: none">
+      <form action="/fileupload" method="POST" enctype="multipart/form-data">
+        <div class="input-group">
+          <input type="file" class="form-control" id="customFile" name="file">
+          <input type="submit" value="Upload">
+        </div>
+      </form>
+    </div>
+
+    <div id="content_2" style="display: none">
+      <form>
+        <div class="form-group">
+          <label for="contents"> Threats description contents:</label>
+          <textarea class="form-control" rows="5" id="contents">--- remote this line and copy the Threats description contents here ---
+            </textarea>
+          <input type="submit">
+        </div>
+      </form>
+    </div>
+    <p> </p>
+  </li>
+
+  <li class="list-group-item">
+    <h4> Step 3. Process the Threats description by AI-LLM</h4>
+    {% if posts is not none and 'filename' in posts %}
+    <p> <b> Current uploaded src: </b> {{ posts['filename'] }} </p>
+    <form id="startprocess" method="POST" action="#"><input type="submit" value="Start"></form>
+    <div class="spinner-border text-primary" id="progspinner" style="display: none;"> </div>
+    {% else %}
+      <p> Please upload or insert a MCQ source in step 1 </p>
+    {% endif %}
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">  
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#section1">Process Log 
+            
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div id="section1" class="container-fluid bg-info">
+      <div id="log"></div>
+    </div>
+  </li>
+</ul>
+
+<script>
+  function toggleDiv(radioName) {
+    document.getElementById("content_1").style.display = "none";
+    document.getElementById("content_2").style.display = "none";
+    if (radioName === "customRadio1") {
+      document.getElementById("content_1").style.display = "block";
+    } else if (radioName === "customRadio2") {
+      document.getElementById("content_2").style.display = "block";
+    } 
+  }
+
+  // Add the following code if you want the name of the file appear on select
+  $(".custom-file-input").on("change", function () {
+    var fileName = $(this).val().split("\\").pop();
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+  });
+
+  $(document).ready(function () {
+    // Connect to the Socket.IO server.
+    // The connection URL has the following format, relative to the current page:
+    //     http[s]://<domain>:<port>[/<namespace>]
+    var socket = io();
+
+    // Event handler for new connections.
+    // The callback function is invoked when a connection with the
+    // server is established.
+    socket.on('connect', function () {
+      socket.emit('cli_request', { data: 'I\'m connected!' });
+    });
+
+    // Event handler for server sent data.
+    // The callback function is invoked whenever the server emits data
+    // to the client. The data is then displayed in the "Received"
+    // section of the page.
+    socket.on('serv_response', function (msg, cb) {
+      $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+      if (msg.data == 'Downloading result...') {
+        socket.emit('cli_request', { data: 'download' });
+        document.getElementById('progspinner').style.display = "none";
+        document.getElementById('startprocess').style.display = "block";
+      }
+      if (cb)
+        cb();
+    });
+
+    socket.on('file_ready', function (data) {
+      var blob = new Blob([data.content], { type: 'text/plain' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = data.filename + '.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    })
+
+    // Test response received from server is handled here
+    socket.on('startprocess', function (msg) {
+      $('#log').append('<br>' + $('<div/>').text(msg.data).html());
+    })
+
+    // Handlers for the different forms in the page.
+    // These accept data from the user and send it to the server in a
+    // variety of ways
+    $('form#startprocess').submit(function (event) {
+      document.getElementById('log').innerHTML = ""
+      document.getElementById('progspinner').style.display = "block";
+      document.getElementById('startprocess').style.display = "none";
+      socket.emit('startprocess', { data: 'Start to process file' });
+
+      return false;
+    });
+  });
+
+</script>
+
+
+{% endblock %}

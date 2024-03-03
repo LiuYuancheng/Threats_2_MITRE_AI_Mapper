@@ -7,6 +7,10 @@
 
 After finished the mapping and matching process the program will also automate generate the mapping and matching result report.
 
+![](doc/img/projectView.png)
+
+
+
 [TOC]
 
 ------
@@ -32,6 +36,18 @@ We want to use the AI LLM to generate a prompt based tool/lib which can help ana
 Remark: the 5 steps analyze introduced in our program are an automation of the ( 6 steps ) introduced in the Threat Intelligence mapping example shown in the  MITRE-ATT&CK official document (page6 Example of FireEye report that’s been mapped to ATT&CK. ): 
 
 https://www.mitre.org/sites/default/files/2021-11/getting-started-with-attack-october-2019.pdf
+
+
+
+------
+
+### Project Design 
+
+
+
+
+
+
 
 
 

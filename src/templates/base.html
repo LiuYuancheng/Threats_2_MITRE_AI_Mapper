@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+    
+    {% block link%} {% endblock %}
+    {% block script%} {% endblock %}
+    <title>{% block title %} {% endblock %}</title>
+    {% block style %} {% endblock %}
+</head>
+
+<body class="bg-secondary">
+
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="{{url_for('static', filename='img/logo.png')}}" alt="Avatar Logo" style="width:40px;" class="rounded-pill"> 
+              </a>
+          <a class="navbar-brand" href="#"> Threats To MITRE(CWD,ATT&CK) Mapper </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="#"> Link to MITRE-CWE </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"> Link to MITRE-ATT&CK </a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"> API </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Link</a></li>
+                  <li><a class="dropdown-item" href="#">Another link</a></li>
+                  <li><a class="dropdown-item" href="#">A third link</a></li>
+                </ul>
+              </li>
+            </ul>
+            <form class="d-flex">
+                <input class="form-control me-2" type="text" value="Host: 127.0.0.1:500" placeholder="Search">
+                <button class="btn btn-primary" type="button">Connect</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+    <!-- server state panel -->
+
+    <div class="container-fluid " style="margin-top:80px;">
+        {% block content %} 
+        {% endblock %}
+    </div>
+
+    <div class="mt-5 p-4 bg-dark text-white text-center">
+        <p class="text-muted">Copyright © 2023 </p>
+        <p class="text-muted">Phone: +65 Address: NCL COM3-B1-09 Computing 3, 11 Research Link, Singapore 119391</p>
+    </div>
+    
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-danger"> {{message}}</div>
+    {% endfor %}
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

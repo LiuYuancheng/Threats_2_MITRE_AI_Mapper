@@ -79,6 +79,15 @@ AI_MODEL = CONFIG_DICT['AI_MODEL']
 # Init the attack scenario storage folder
 SCE_BANK = os.path.join(dirpath, CONFIG_DICT['SCE_BANK']) if 'SCE_BANK' in CONFIG_DICT.keys() else dirpath 
 
+
+
+#-----------------------------------------------------------------------------
+APP_SEC_KEY = 'secrete-key-goes-here'
+UPDATE_PERIODIC = 15
+COOKIE_TIME = 30
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'html', 'md', 'pdf', 'json'}
+
+gParserMode = 1
 #-----------------------------------------------------------------------------
 # Init all the prompt
 
@@ -138,3 +147,5 @@ MITRE_CWE: CWE-<number>
 - CWE_Name: <MITRE CWE name>
 - vulnerability: short summary of the vulnerability in the scenario can match the CWE
 """
+
+idataMgr = None 
