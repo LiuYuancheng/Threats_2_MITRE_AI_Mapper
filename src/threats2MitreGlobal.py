@@ -77,15 +77,22 @@ os.environ["OPENAI_API_KEY"] = API_KEY
 AI_MODEL = CONFIG_DICT['AI_MODEL']
 
 # Init the attack scenario storage folder
-SCE_BANK = os.path.join(dirpath, CONFIG_DICT['SCE_BANK']) if 'SCE_BANK' in CONFIG_DICT.keys() else dirpath 
-
-
+gSceBank = os.path.join(dirpath, CONFIG_DICT['SCE_BANK']) if 'SCE_BANK' in CONFIG_DICT.keys() else dirpath 
+gRstFolder = os.path.join(dirpath, CONFIG_DICT['RST_FOLDER']) if 'RST_FOLDER' in CONFIG_DICT.keys() else dirpath
+gTestMd = False
 
 #-----------------------------------------------------------------------------
+# init the 
 APP_SEC_KEY = 'secrete-key-goes-here'
 UPDATE_PERIODIC = 15
 COOKIE_TIME = 30
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'html', 'md', 'pdf', 'json'}
+
+# Flask App parameters : 
+#gflaskHost = 'localhost' if gTestMd else '0.0.0.0'
+#gflaskPort = int(CONFIG_DICT['FLASK_SER_PORT']) if 'FLASK_SER_PORT' in CONFIG_DICT.keys() else 5000
+#gflaskDebug = CONFIG_DICT['FLASK_DEBUG_MD']
+#gflaskMultiTH =  CONFIG_DICT['FLASK_MULTI_TH']
 
 gParserMode = 1
 #-----------------------------------------------------------------------------

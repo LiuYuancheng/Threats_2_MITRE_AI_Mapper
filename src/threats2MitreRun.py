@@ -3,8 +3,8 @@
 # Name:        threats2MitreRun.py
 #
 # Purpose:     This module will load the threats scenario description from the 
-#              file and call the AI llmMITREMapper to generate the scenario to
-#              MITRE ATT&CK mapping report.
+#              file and call the AI-llm MITRE ATT&CK-Mapper/ CWE-Matcher module 
+#              to generate the related report.
 #              
 # Author:      Yuancheng Liu
 #
@@ -16,6 +16,7 @@
 
 import os
 import json
+from datetime import datetime
 
 import threats2MitreGlobal as gv
 from threats2MitreUtils import llmMITREMapper, llmMITRECWEMatcher
@@ -28,7 +29,7 @@ def loadScenarioFromFile(scenarioFile):
             scenarioFile (str): fileName. The file need to be put in the scenario
                 bank folder defined in the config file.
     """
-    filePath = os.path.join(gv.SCE_BANK, scenarioFile)
+    filePath = os.path.join(gv.gSceBank, scenarioFile)
     scenarioStr = None 
     if os.path.exists(filePath):
         try:
@@ -40,13 +41,36 @@ def loadScenarioFromFile(scenarioFile):
                             logType=gv.LOG_ERR)
             return None 
     else:
-        gv.gDebugPrint("Scenario file not exist: %s" %str(filePath), 
+        gv.gDebugPrint("Thret scenario file not exist: %s" %str(filePath), 
                         logType=gv.LOG_WARN)
     return scenarioStr
 
 #-----------------------------------------------------------------------------
+def creatReport(dataDict):
+    """Generate the mapping/matching report.
+    Args:
+        dataDict (dict): map/match result dictionary.
+    """
+    now = datetime.now()
+    dateTime = now.strftime("%Y_%m_%d_%H_%M_%S")
+    dataDict['Time'] = dateTime  
+    fileExtention =  "_Cwe_%s.json" %str(dateTime) if dataDict['ReportType'] == 'CWE' else "_Atk_%s.json" %str(dateTime)
+    reportName = str(dataDict['ScenarioName']).replace('.txt', fileExtention)
+    reportPath= os.path.join(gv.gRstFolder, reportName)
+    jsonStr = json.dumps(dataDict, indent=4)
+    try:
+        with open(reportPath, "w") as outfile:
+            outfile.write(jsonStr)
+        gv.gDebugPrint("creatReport(): Report file created: %s" %str(reportPath),
+                        logType=gv.LOG_INFO)
+    except Exception as err:
+        gv.gDebugPrint("creatReport(): Error write the report file: %s" %str(err),
+                    logType=gv.LOG_ERR)
+
+#-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 class threats2CWEMatcher(object):
+    """ Main threats scenario description MITRE CWE matcher program. """
 
     def __init__(self, openAIkey=gv.API_KEY) -> None:
         self.openAIkey = openAIkey
@@ -56,32 +80,38 @@ class threats2CWEMatcher(object):
 
     #-----------------------------------------------------------------------------
     def processScenarioFile(self, scenarioFile):
+        """ Process the input threats scenario description file and generate the
+            MITRE match report(json format).
+            Args:
+                scenarioFile (str): threats scenario file name.
+        """
         gv.gDebugPrint("Start to process scenario file: %s" %str(scenarioFile),
                 logType=gv.LOG_INFO)
-        resultDict = {}
-        # 1. load thread scenario description file. 
+        # 1. load thread scenario description file.
+        gv.gDebugPrint("Step1: load threats report.", logType=gv.LOG_INFO)
         secContent = loadScenarioFromFile(scenarioFile)
         if secContent is None: return
-        resultDict['ScenarioName'] = scenarioFile
-        gv.gDebugPrint("Step1: Scenario load ready.", logType=gv.LOG_INFO)
-
-
-        gv.gDebugPrint("Step2: Summarize scenario and get attack behaviors list.", 
+        gv.gDebugPrint("- Finished.", logType=gv.LOG_INFO)
+        # 2. get the CWE mapping result
+        gv.gDebugPrint("Step2: Parse the vulnerabilies.", 
                        logType=gv.LOG_INFO)
         matchRst = self.cweMatch.getCWEInfo(secContent)
-
-        # 5. Generate the mapping result report.
+        cweNum = len(matchRst.keys())
+        gv.gDebugPrint("- Get %s matched CWE." %str(cweNum), logType=gv.LOG_INFO)
+        if cweNum == 0: return
+        # 3. Generate the  result report.
         gv.gDebugPrint("Step3: Generate the report file", logType=gv.LOG_INFO)
-        resultJson = json.dumps(matchRst, indent=4)
-        reportFile = str(scenarioFile).replace('.txt', '_Cwe.json')
-        reportPath= os.path.join(gv.dirpath, reportFile)
-        with open(reportPath, "w") as outfile:
-            outfile.write(resultJson)
+        resultDict  = {
+            'ScenarioName': scenarioFile,
+            'ReportType': 'CWE'
+        }
+        resultDict.update(matchRst)
+        creatReport(resultDict)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 class threats2MitreMapper(object):
-    """ Main threats scenario description mapper program. """
+    """ Main threats scenario description MITRE ATT&CK mapper program. """
 
     def __init__(self, openAIkey=gv.API_KEY) -> None:
         self.openAIkey = openAIkey
@@ -92,7 +122,7 @@ class threats2MitreMapper(object):
     #-----------------------------------------------------------------------------
     def processScenarioFile(self, scenarioFile):
         """ Process the input threats scenario description file and generate the
-            MITRE mapping report(json format) in the current execution foler. 
+            MITRE mapping report(json format).
             Args:
                 scenarioFile (str): threats scenario file name.
         """
@@ -148,7 +178,7 @@ def main():
     #scenarioFile = 'maliciousMacroReport.txt'
     # scenarioFile = 'railwayITattackReport.txt'
     while True:
-        print("***\nPlease type in the threats fileName you want to process: ")
+        print("***\nPlease type in the threats fileName you want to process(q for exist): ")
         uInput = str(input())
         scenarioFile = uInput
         if scenarioFile.lower() == 'exit' or scenarioFile.lower() == 'q':

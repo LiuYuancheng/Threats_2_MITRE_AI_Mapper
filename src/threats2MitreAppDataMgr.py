@@ -27,7 +27,7 @@ def loadScenarioFromFile(scenarioFile):
             scenarioFile (str): fileName. The file need to be put in the scenario
                 bank folder defined in the config file.
     """
-    filePath = os.path.join(gv.SCE_BANK, scenarioFile)
+    filePath = os.path.join(gv.gSceBank, scenarioFile)
     scenarioStr = None 
     if os.path.exists(filePath):
         try:

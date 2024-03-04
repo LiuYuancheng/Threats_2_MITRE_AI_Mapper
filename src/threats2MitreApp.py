@@ -36,7 +36,7 @@ def createApp():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = gv.APP_SEC_KEY
     #app.config['REMEMBER_COOKIE_DURATION'] = timedelta(seconds=gv.COOKIE_TIME)
-    app.config['UPLOAD_FOLDER'] = gv.SCE_BANK
+    app.config['UPLOAD_FOLDER'] = gv.gSceBank
     # init the data manager
     gv.iDataMgr = dataManager.DataManager(app)
     if not gv.iDataMgr: exit()

@@ -235,14 +235,3 @@ Step2: Follow the web page instruction to set up the mapper AI module and verifi
 ------
 
 > Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 03/01/2024, , if you have any problem please free to message me.
-
-
-
-
-
-
-
-
-
-
-
