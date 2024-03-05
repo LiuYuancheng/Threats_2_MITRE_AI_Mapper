@@ -9,7 +9,7 @@
 # Author:      Yuancheng Liu
 #
 # Created:     2024/02/29
-# Version:     v_0.1.0
+# Version:     v_0.1.1
 # Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
@@ -29,6 +29,9 @@ def loadScenarioFromFile(scenarioFile):
             scenarioFile (str): fileName. The file need to be put in the scenario
                 bank folder defined in the config file.
     """
+    if not gv.gCheckFileType(scenarioFile): 
+        gv.gDebugPrint("Error: The file need to be *.txt format.", logType=gv.LOG_ERR)
+        return None
     filePath = os.path.join(gv.gSceBank, scenarioFile)
     scenarioStr = None 
     if os.path.exists(filePath):
@@ -48,8 +51,8 @@ def loadScenarioFromFile(scenarioFile):
 #-----------------------------------------------------------------------------
 def creatReport(dataDict):
     """Generate the mapping/matching report.
-    Args:
-        dataDict (dict): map/match result dictionary.
+        Args:
+            dataDict (dict): map/match result dictionary.
     """
     now = datetime.now()
     dateTime = now.strftime("%Y_%m_%d_%H_%M_%S")
@@ -93,14 +96,14 @@ class threats2CWEMatcher(object):
         if secContent is None: return
         gv.gDebugPrint("- Finished.", logType=gv.LOG_INFO)
         # 2. get the CWE mapping result
-        gv.gDebugPrint("Step2: Parse the vulnerabilies.", 
+        gv.gDebugPrint("Step2: parse the vulnerabilies.", 
                        logType=gv.LOG_INFO)
         matchRst = self.cweMatch.getCWEInfo(secContent)
         cweNum = len(matchRst.keys())
         gv.gDebugPrint("- Get %s matched CWE." %str(cweNum), logType=gv.LOG_INFO)
         if cweNum == 0: return
         # 3. Generate the  result report.
-        gv.gDebugPrint("Step3: Generate the report file", logType=gv.LOG_INFO)
+        gv.gDebugPrint("Step3: generate the report file", logType=gv.LOG_INFO)
         resultDict  = {
             'ScenarioName': scenarioFile,
             'ReportType': 'CWE'
@@ -130,13 +133,14 @@ class threats2MitreMapper(object):
                        logType=gv.LOG_INFO)
         resultDict = {}
         # 1. load thread scenario description file. 
+        gv.gDebugPrint("Step1: load threats report.", logType=gv.LOG_INFO)
         secContent = loadScenarioFromFile(scenarioFile)
         if secContent is None: return
+        gv.gDebugPrint("- Finished.", logType=gv.LOG_INFO)
         resultDict['ScenarioName'] = scenarioFile
-        gv.gDebugPrint("Step1: Scenario load ready.", logType=gv.LOG_INFO)
-        
+        resultDict['ReportType'] = 'ATT&CK'
         # 2. Summarize the contents and parse all the attack behaviors.
-        gv.gDebugPrint("Step2: Summarize scenario and get attack behaviors list.", 
+        gv.gDebugPrint("Step2: summarize scenario and get attack behaviors list.", 
                        logType=gv.LOG_INFO)
         atkBehList = self.attackMapper.getAttackInfo(secContent)
         if atkBehList is None or len(atkBehList) == 0:
@@ -145,14 +149,12 @@ class threats2MitreMapper(object):
         resultDict['AttackBehaviors'] = atkBehList
         gv.gDebugPrint(" - Found %s attack behaviors" %str(len(atkBehList)), 
                        logType=gv.LOG_INFO)
-        
         # 3. Map every attack/malicious behavior
-        gv.gDebugPrint("Step3: Map every behavior to MITRE ATT&CK Matrix (tactic, technique)",
+        gv.gDebugPrint("Step3: map every behavior to MITRE ATT&CK Matrix (tactic, technique)",
                        logType=gv.LOG_INFO)
         mapResult = self.attackMapper.getAttackTechnique(atkBehList)
         gv.gDebugPrint(" - Found %s mapped MITRE ATT&CK tactic" %str(len(mapResult.keys())),
                        logType=gv.LOG_INFO)
-
         # 4. Verify the mapper result to orignal scenario
         gv.gDebugPrint("Step4: verifiy whether the technique can match the scenario",
                        logType=gv.LOG_INFO)
@@ -162,21 +164,15 @@ class threats2MitreMapper(object):
             for technique in mapResult[tactic]:
                 rst = self.attackMapper.verifyAttackTechnique(technique)
                 resultDict[tactic][technique] = rst
-        
+        gv.gDebugPrint("- Finished.", logType=gv.LOG_INFO)
         # 5. Generate the mapping result report.
-        gv.gDebugPrint("Step5: Generate the report file", logType=gv.LOG_INFO)
-        resultJson = json.dumps(resultDict, indent=4)
-        reportFile = str(scenarioFile).replace('.txt', '_Atk.json')
-        reportPath= os.path.join(gv.dirpath, reportFile)
-        with open(reportPath, "w") as outfile:
-            outfile.write(resultJson)
+        gv.gDebugPrint("Step5: generate the report file", logType=gv.LOG_INFO)
+        creatReport(resultDict)
 
 #-----------------------------------------------------------------------------
 def main():
     threatsMapper = threats2MitreMapper()
     threatsMatcher = threats2CWEMatcher()
-    #scenarioFile = 'maliciousMacroReport.txt'
-    # scenarioFile = 'railwayITattackReport.txt'
     while True:
         print("***\nPlease type in the threats fileName you want to process(q for exist): ")
         uInput = str(input())

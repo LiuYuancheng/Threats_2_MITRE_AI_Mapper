@@ -11,7 +11,7 @@
 # Author:      Yuancheng Liu
 #
 # Created:     2024/02/29
-# Version:     v_0.1.0
+# Version:     v_0.1.1
 # Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ class llmMITRECWEMatcher(object):
         answerList = self.llmAnalyzerChain.run(scenarioStr)
         for ansStr in answerList:
             ansStr = ansStr.strip()
-            if ansStr == '' or ansStr == '\n':continue
+            if ansStr == '' or ansStr == '\n': continue
             if ansStr.startswith('MITRE_CWE'):
                 cweKey = str(ansStr.split(':')[1]).strip()
                 if not cweKey in resultDict.keys():
@@ -112,12 +112,9 @@ class llmMITREMapper(object):
         self.llm = ChatOpenAI(temperature=0, model_name=gv.AI_MODEL)
         self.llmAnalyzerChain = None 
         self._initASDAnalyzer()
-
         self.llmActMapperChain = None 
         self._initActionMapper()
-
         self.llmTecVerifyChain = None
-
         #self.llmMaperChain = None 
         #self._initASDMapper()
 
@@ -299,6 +296,7 @@ def testCase(mode):
         ttp = mapper.getBehaviorTechnique(behStr)
         print(ttp)
     elif mode == 3:
+        print("TestCase 3: test behaviors to ATT&CK matrix")
         hehaviorsList = [
             '1. Constructing a malicious macro within a MS-Office Word document (CVE-2015-1641).',
             '2. Embedding an auto-phishing email malware into the document.',
@@ -307,7 +305,8 @@ def testCase(mode):
         ]
         ttps = mapper.getAttackTechnique(hehaviorsList)
         print(ttps)
-    elif mode == 4: 
+    elif mode == 4:
+        print("TestCase 4: test verify the ATT&CK mapping reuslt.")
         techList = ['technique: Spearphishing Attachment (T1193)', 'technique: Drive-by Compromise (T1189)']
         mapper.setVerifier(scenarioStr)
         for tech in techList:
@@ -315,7 +314,7 @@ def testCase(mode):
             print(rst)
             print("---")
     elif mode == 5:
-        print("Test Case 5: start to check vulnerability")
+        print("TestCase 5: test check vulnerability CWE.")
         rst = matcher.getCWEInfo(scenarioStr)
         print(rst)
     else:

@@ -5,16 +5,37 @@
 <div class="row">
     <div class="col-sm-2">
         <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action">Introduction</a>
-            <a href="#" class="list-group-item list-group-item-action">MITRE-ATT&CK mapper</a>
-            <a href="#" class="list-group-item list-group-item-action">MITRE-CWE matcher</a>
-            <a href="#" class="list-group-item list-group-item-action">Configuration</a>
+            {% if posts['page'] == 0 %}
+                <a href="#" class="list-group-item list-group-item-action bg-secondary">Introduction</a>
+            {% else %}
+                <a href="#" class="list-group-item list-group-item-action">Introduction</a>
+            {% endif %}
+
+            {% if posts['page'] == 1 %}
+                <a href="#" class="list-group-item list-group-item-action bg-secondary">MITRE-ATT&CK mapper</a>
+            {% else %}
+                <a href="#" class="list-group-item list-group-item-action">Introduction</a>
+            {% endif %}
+
+
+            {% if posts['page'] == 2 %}
+                <a href="#" class="list-group-item list-group-item-action bg-secondary">MITRE-CWE matcher</a>
+            {% else %}
+                <a href="#" class="list-group-item list-group-item-action">MITRE-CWE matcher</a>
+            {% endif %}
+
+            {% if posts['page'] == 3 %}
+                <a href="#" class="list-group-item list-group-item-action bg-secondary">Configuration</a>
+            {% else %}
+                <a href="#" class="list-group-item list-group-item-action">Configuration</a>
+            {% endif %}
+
         </div>
     </div>
 
     <div class="col-sm-10">
-        {% block mgmContent %} {% endblock %}
+        {% block mgmContent %} 
+        {% endblock %}
     </div>
 </div>
-
 {% endblock %}

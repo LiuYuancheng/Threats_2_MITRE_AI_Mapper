@@ -79,21 +79,24 @@ AI_MODEL = CONFIG_DICT['AI_MODEL']
 # Init the attack scenario storage folder
 gSceBank = os.path.join(dirpath, CONFIG_DICT['SCE_BANK']) if 'SCE_BANK' in CONFIG_DICT.keys() else dirpath 
 gRstFolder = os.path.join(dirpath, CONFIG_DICT['RST_FOLDER']) if 'RST_FOLDER' in CONFIG_DICT.keys() else dirpath
-gTestMd = False
 
 #-----------------------------------------------------------------------------
-# init the 
+# init the web interface parameter here
 APP_SEC_KEY = 'secrete-key-goes-here'
 UPDATE_PERIODIC = 15
 COOKIE_TIME = 30
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'html', 'md', 'pdf', 'json'}
+ALLOWED_EXTENSIONS = ('txt',)
+# verify file type
+def gCheckFileType(filename):
+    return '.' in filename and str(filename).rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Flask App parameters : 
-#gflaskHost = 'localhost' if gTestMd else '0.0.0.0'
-#gflaskPort = int(CONFIG_DICT['FLASK_SER_PORT']) if 'FLASK_SER_PORT' in CONFIG_DICT.keys() else 5000
-#gflaskDebug = CONFIG_DICT['FLASK_DEBUG_MD']
-#gflaskMultiTH =  CONFIG_DICT['FLASK_MULTI_TH']
-
+gflaskHost = '0.0.0.0'
+gflaskPort = int(CONFIG_DICT['FLASK_SER_PORT']) if 'FLASK_SER_PORT' in CONFIG_DICT.keys() else 5000
+gflaskDebug = CONFIG_DICT['FLASK_DEBUG_MD']
+gflaskMultiTH =  CONFIG_DICT['FLASK_MULTI_TH']
+# App global paramters dict.
+gAppParmDict = {} 
 gParserMode = 1
 #-----------------------------------------------------------------------------
 # Init all the prompt
@@ -155,4 +158,6 @@ MITRE_CWE: CWE-<number>
 - vulnerability: short summary of the vulnerability in the scenario can match the CWE
 """
 
-idataMgr = None 
+#-----------------------------------------------------------------------------
+iAppDataMgr = None
+iSocketIO = None
