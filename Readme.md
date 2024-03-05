@@ -9,11 +9,11 @@ To achieve this, the program will undertake the following tasks:
 
 Upon completion of the mapping and matching processes, the program will automate the generation of a comprehensive report detailing the outcomes of these activities. This report will serve to provide valuable insights into the cyber threat landscape outlined in the original documents.
 
-The program system view is shown below:
+The general program system view (General workflow, MITRE Mapper and Matcher Web UI) is shown below:
 
-![](doc/img/projectView.png)
+![](doc/img/overview.png)
 
-Version `v0.1.0`
+Version `v0.1.1`
 
 **Table of Contents**
 
@@ -25,7 +25,11 @@ Version `v0.1.0`
 
 While there are several threat analysis tools available in the market, such as [ThreatMapper](https://www.deepfence.io/threatmapper) and [CRITs (Collaborative Research Into Threats)](https://crits.github.io/), many of them require users to be well-versed in two industry-standard-threats protocols like STIX and TAXII. Users must employ STIX (Structured Threat Information eXpression) for creating accuracy threat description, then connect to the analysis tool's services with TAXII (Trusted Automated Exchange of Indicator Information) to facilitate the exchange of cyber threat intelligence. This prerequisite can steepen the learning curve for users.
 
-Our objective is to develop an AI LLM-based tool/library that simplifies the analysis of human language threat scenario descriptions found in technical blogs, CTI reports, and cyber attack training notes. This tool will allow user to pass in the original human threats report contents and automate the generation of MITRE ATT&CK Matrix mappings and MITRE CWE Tree matches process. The tool will proceed the input threats report through the following steps:
+Our objective is to develop an AI LLM-based tool/library that simplifies the analysis of human language threat scenario descriptions found in technical blogs, CTI reports, and cyber attack training notes. This tool will allow user to pass in the original human threats report contents and automate the generation of MITRE ATT&CK Matrix mappings and MITRE CWE Tree matches process. The general program workflow is shown below:
+
+![](doc/img/projectView.png)
+
+The tool will proceed the input threats report through the following steps:
 
 1. **Material Summarization**: Leveraging AI LLM, we will analyze lengthy threat descriptions to summarize attack scenarios and attack path descriptions.
 2. **Attack Behavior Parsing**: The summarized threats will be input into the LLM Attack Behavior Analyzer to extract a list of individual attack behaviors.
@@ -34,6 +38,12 @@ Our objective is to develop an AI LLM-based tool/library that simplifies the ana
 5. **Report Generation**: Based on verified results, the program will generate mapping reports for further research and development purposes.
 
 **Remark:** The five steps analyze introduced in our program are an automation of the ( 6 steps ) introduced in the Threat Intelligence mapping example shown in the  MITRE-ATT&CK official document (page6 Example of FireEye report that’s been mapped to ATT&CK): https://www.mitre.org/sites/default/files/2021-11/getting-started-with-attack-october-2019.pdf
+
+The program provide command console interface and the web interface for user to use, the web UI is shown below:
+
+![](doc/img/webUI00.png)
+
+To check the detail usage, please refer to this video: https://youtu.be/NoGy8Z5xXWE?si=uPeHbf80kpgez1d9
 
 
 
@@ -161,27 +171,36 @@ AI_MODEL:<GPT-4>
 
 # set the AI model apply to the verifier, if not set program will use the same as the mapper.
 VF_KEY:<openAI key>
-AI_MODEL:<gpt-3.5-turbo-16k>
+VF_AI_MODEL:<gpt-3.5-turbo-16k>
 
-# Scneario Bank folder 
+# Scenario bank folder (folder to store the threats report srource)
 SCE_BANK:ScenarioBank
+
+# Output folder (folder to store the threats report)
+RST_FOLDER:ReportFolder
+
+#-----------------------------------------------------------------------------
+# Init the Flask app parameters
+FLASK_SER_PORT:5000
+FLASK_DEBUG_MD:False
+FLASK_MULTI_TH:True
 ```
 
 
 
-#### User the MITRE-Mapper From Console
+#### Use the MITRE-Mapper From Console
 
-Step1: Run the command interface program via command: 
+**Step1**: Run the command interface program via command: 
 
 ```
 python3 threats2MitreRun.py
 ```
 
-Step2: Copy the threats description file to the `ScenarioBank` folder as you set in the config file . Select the function and fill in the threats report source in program as shown below: 
+**Step2**: Copy the threats description file to the `ScenarioBank` folder as you set in the config file . Select the function and fill in the threats report source in program as shown below: 
 
 ![](doc/img/console.png)
 
-Step3: The report will be generated in the same folder check the repot file `maliciousMacroReport_Atk.json` : 
+**Step3**: The report will be generated in the `RST_FOLDER` folder you set in the config file, then check the repot file `maliciousMacroReport_Atk.json` contents: 
 
 ```
 {
@@ -208,27 +227,57 @@ Step3: The report will be generated in the same folder check the repot file `mal
 
 
 
-#### User the MITRE-Mapper From Web interface 
+#### Use the MITRE-ATT&CK-Mapper From Web Interface 
 
-Step1: Run the command interface program via command: 
+This section will show how to upload a threats scenario file and use the MITRE-ATT&CK mapper web interface. (You can also paste the threats scenario description directly)
+
+**Step1**: Run the command interface program via command: 
 
 ```
 python3 threats2MitreRun.py
 ```
 
-Open the browser and access the URL: http://127.0.0.1:5000/
+Open the browser and access the URL: http://127.0.0.1:5000/ and select the "MITRE-ATT&CK mapper" : 
 
-Step2: Follow the web page instruction to set up the mapper AI module and verifier module , then upload the threats description file or copy the contents directly in the text field. 
+![](doc/img/webUI01.png)
+
+**Step2**: Follow the web page instruction to set up the mapper AI module and verifier module , then upload the threats description file and press the "Upload" button.(As shown below) 
 
 ![](doc/img/upload.png)
 
-**Step3**: Press the "Start" button to start the process.
+**Step3**: After upload finished, the process start button will show up then press the "Start" button to start the process.  When the process finished, the browser will automated download the *.json format report. (As shown below, the report's file name will be under format `<uploadfilename>_Report_Atk_YYYY_MM_DD.json` )
 
 ![](doc/img/finish.png)
 
-**Step 4**: When the process finished, the report will auto download to your local download folder 
 
-![](doc/img/download.png)
+
+#### Use the MITRE-CWE-Matcher From Web Interface 
+
+This section will show how to paste threats scenario contents directly to the web and use the MITRE-CWE matcher web interface.(You can also do the matching via upload the  threats scenario file)
+
+**Step1**: Run the command interface program via command: 
+
+```
+python3 threats2MitreRun.py
+```
+
+Open the browser and access the URL: http://127.0.0.1:5000/ and select the "MITRE-CWE matcher" : 
+
+![](doc/img/webUI02.png)
+
+**Step2**: Follow the web page instruction to set up the mapper AI module and verifier module , then paste the contents directly in the text field and press the "Upload" button.(As shown below) 
+
+![](doc/img/cweUpload.png)
+
+**Step3**: After upload finished, the process start button will show up then press the "Start" button to start the process.  When the process finished, the browser will automated download the *.json format report. (As shown below, the report's file name will be under format `tempScenarioFile_Cwe_YYYY_MM_DD.json` )
+
+![](doc/img/cweFinished.png)
+
+
+
+
+
+
 
 
 

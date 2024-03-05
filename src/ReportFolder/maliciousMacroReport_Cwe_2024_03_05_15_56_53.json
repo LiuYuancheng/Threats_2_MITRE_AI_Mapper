@@ -1,0 +1,23 @@
+{
+    "ScenarioName": "maliciousMacroReport.txt",
+    "ReportType": "CWE",
+    "CWE-94": {
+        "CWE_Name": "Improper Control of Generation of Code ('Code Injection')",
+        "vulnerability": [
+            "Alice constructs a malicious macro within a MS-Office Word document, which can be considered as code injection. This vulnerability allows an attacker to execute arbitrary code on the victim's machine."
+        ]
+    },
+    "CWE-611": {
+        "CWE_Name": "Information Exposure through XML External Entity Reference",
+        "vulnerability": [
+            "Alice embeds an auto-phishing email malware into the document, which can potentially exploit XML external entity (XXE) vulnerabilities. This vulnerability allows an attacker to read arbitrary files on the victim's machine."
+        ]
+    },
+    "CWE-442": {
+        "CWE_Name": "Unrestricted File Upload",
+        "vulnerability": [
+            "Alice disguises the malware as a harmless lucky draw USB driver. This can be considered as an unrestricted file upload vulnerability, where the attacker is able to upload and execute arbitrary files on the victim's machine."
+        ]
+    },
+    "Time": "2024_03_05_15_56_53"
+}

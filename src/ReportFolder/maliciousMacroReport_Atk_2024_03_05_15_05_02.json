@@ -1,0 +1,23 @@
+{
+    "ScenarioName": "maliciousMacroReport.txt",
+    "ReportType": "ATT&CK",
+    "AttackBehaviors": [
+        "1. Constructing a malicious macro within a MS-Office Word document",
+        "2. Embedding an auto-phishing email malware into the document",
+        "3. Disguising the malware as a harmless lucky draw USB driver",
+        "4. Sending the document to the unsuspecting victim"
+    ],
+    "tactic: Initial Access": {
+        "technique: Spearphishing Attachment (T1193)": {
+            "match": true,
+            "detail": "explanation: The scenario describes how Alice constructs a malicious macro within a MS-Office Word document and embeds an auto-phishing email malware into the document. This is a classic example of a spearphishing attack where the attacker sends a malicious attachment (the Word document) to the victim (Bob) in an attempt to trick them into opening it and executing the embedded malware."
+        }
+    },
+    "tactic: Defense Evasion": {
+        "technique: Masquerading (T1036)": {
+            "match": true,
+            "detail": "explanation: The scenario describes how the attacker, Alice, disguises the auto-phishing email malware as a harmless lucky draw USB driver. This is an example of masquerading, where the attacker attempts to make the malware appear as something legitimate or benign to deceive the victim."
+        }
+    },
+    "Time": "2024_03_05_15_05_02"
+}
