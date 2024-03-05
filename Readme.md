@@ -19,6 +19,31 @@ Version `v0.1.1`
 
 [TOC]
 
+- [Threats To MITRE(CWD, ATT&CK) AI-LLM Mapper](#threats-to-mitre-cwd--att-ck--ai-llm-mapper)
+    + [Introduction](#introduction)
+    + [Project Design](#project-design)
+      - [Design of Threats To MITRE(CWD, ATT&CK) Mapper](#design-of-threats-to-mitre-cwd--att-ck--mapper)
+    + [Background Knowledge](#background-knowledge)
+      - [MITRE CWE and ATT&CK](#mitre-cwe-and-att-ck)
+        * [MITRE CWE (Common Weakness Enumeration)](#mitre-cwe--common-weakness-enumeration-)
+        * [MITRE ATT&CK (Adversarial Tactics, Techniques, and Common Knowledge)](#mitre-att-ck--adversarial-tactics--techniques--and-common-knowledge-)
+      - [CVE and MITRE CWE](#cve-and-mitre-cwe)
+      - [APT and MITRE ATT&CK](#apt-and-mitre-att-ck)
+      - [Large Language Models Prompt Engineering](#large-language-models-prompt-engineering)
+      - [Program Setup](#program-setup)
+        * [Development Environment](#development-environment)
+        * [Additional Lib/Software Need](#additional-lib-software-need)
+        * [Hardware Needed : None](#hardware-needed---none)
+        * [Program Files List](#program-files-list)
+    + [Program Usage/Execution](#program-usage-execution)
+      - [Use the MITRE-Mapper From Console](#use-the-mitre-mapper-from-console)
+      - [Use the MITRE-ATT&CK-Mapper From Web Interface](#use-the-mitre-att-ck-mapper-from-web-interface)
+      - [Use the MITRE-CWE-Matcher From Web Interface](#use-the-mitre-cwe-matcher-from-web-interface)
+    + [Reference](#reference)
+    + [Problem and Solution](#problem-and-solution)
+
+
+
 ------
 
 ### Introduction
@@ -181,7 +206,7 @@ In this program we use the language chain tool langchain https://www.langchain.c
 
 ------
 
-#### Program Setup
+### Program Setup
 
 ##### Development Environment
 
@@ -267,6 +292,7 @@ python3 threats2MitreRun.py
 ```
 {
     "ScenarioName": "maliciousMacroReport.txt",
+    "ReportType": "ATT&CK",
     "AttackBehaviors": [
         "1. Constructing a malicious macro within a MS-Office Word document",
         "2. Embedding an auto-phishing email malware into the document",
@@ -282,9 +308,11 @@ python3 threats2MitreRun.py
     "tactic: Defense Evasion": {
         "technique: Masquerading (T1036)": {
             "match": true,
-            "detail": "explanation: The scenario describes how the attacker, Alice, disguises the malware as a harmless lucky draw USB driver. This is an example of masquerading, where the attacker attempts to make the malware appear as something legitimate or benign to deceive the victim."
+            "detail": "explanation: The scenario describes how the attacker, Alice, disguises the auto-phishing email malware as a harmless lucky draw USB driver. This is an example of masquerading, where the attacker attempts to make the malware appear as something legitimate or benign to deceive the victim."
         }
- }
+    },
+    "Time": "2024_03_05_15_05_02"
+}
 ```
 
 
