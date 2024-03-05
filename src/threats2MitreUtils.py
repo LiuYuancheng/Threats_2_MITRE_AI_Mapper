@@ -5,7 +5,7 @@
 # Purpose:     This module will provide two LLM-AI MITRE frame work mapper module
 #              - llmMITREMapper : map the attack scenario attack flow path to the 
 #                   MITRE ATT&CK Matrix to get the related tactic and technique.
-#              - llmMITREMatcher ; match the vulnerbilities appeared in the attack
+#              - llmMITREMatcher : match the vulnerbilities appeared in the attack
 #                   scenario to MITRE CWE frame work to get the related CWE. 
 #                
 # Author:      Yuancheng Liu

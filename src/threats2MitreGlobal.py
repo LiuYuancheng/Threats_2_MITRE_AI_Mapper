@@ -97,7 +97,6 @@ gflaskDebug = CONFIG_DICT['FLASK_DEBUG_MD']
 gflaskMultiTH =  CONFIG_DICT['FLASK_MULTI_TH']
 # App global paramters dict.
 gAppParmDict = {} 
-gParserMode = 1
 gAppRptPath = None
 gWeblogCount = 0
 
@@ -162,5 +161,6 @@ MITRE_CWE: CWE-<number>
 """
 
 #-----------------------------------------------------------------------------
+# Init all the instance use by the web app
 iAppDataMgr = None
 iSocketIO = None

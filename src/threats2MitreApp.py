@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 # Name:        threats2MitreApp.py [python3]
 #
-# Purpose:     This module is the main web interafce to call the AI-llm MITRE 
+# Purpose:     This module is the main web interface to call the AI-llm MITRE 
 #              ATT&CK-Mapper/ CWE-Matcher module to generate the related report.
 #  
 # Author:      Yuancheng Liu
@@ -37,6 +37,7 @@ def createApp():
         gv.iAppDataMgr.start()
     return app
 
+#-----------------------------------------------------------------------------
 def uploadfile(file):
     """ upload a file from the post request"""
     print(file.filename)
@@ -50,6 +51,7 @@ def uploadfile(file):
         return True
     return False 
 
+#-----------------------------------------------------------------------------
 def createThrestsFile(contents):
     filename = 'tempScenarioFile.txt'
     gv.gAppParmDict['srcName'] = filename
@@ -80,12 +82,14 @@ threadLock = threading.Lock()
 # web request handling functions. 
 @app.route('/')
 def index():
-    posts = {'page': 0}
+    """ route to introduction index page."""
+    posts = {'page': 0} # page index is used to highlight the left page slide bar.
     return render_template('index.html', posts=posts)
 
 #-----------------------------------------------------------------------------
 @app.route('/mitreattack')
 def mitreattack():
+    """ route to the MITRE-ATT&CK mapper page."""
     posts = {'mode': gv.AI_MODEL,
              'page': 1}
     return render_template('mitreattack.html', async_mode=socketio.async_mode, 
@@ -94,14 +98,16 @@ def mitreattack():
 #-----------------------------------------------------------------------------
 @app.route('/mitrecwe')
 def mitrecwe():
+    """ route to the MITRE-CWD matcher page."""
     posts = {'mode': gv.AI_MODEL,
              'page': 2}
     return render_template('mitrecwe.html', async_mode=socketio.async_mode, 
                            posts=posts)
 
 #-----------------------------------------------------------------------------
-@app.route('/fileatkupload', methods = ['POST', 'GET'])  
+@app.route('/fileatkupload', methods = ['POST', 'GET'])
 def fileatkupload():
+    """ Handle the threats report file upload from MITRE-ATT&CK mapper page."""
     posts = {
         'mode': gv.AI_MODEL, 
         'page': 1,
@@ -117,6 +123,7 @@ def fileatkupload():
 #-----------------------------------------------------------------------------
 @app.route('/textatkupload', methods = ['POST', 'GET'])  
 def textatkupload():
+    """ Handle the threats description contents upload from MITRE-ATT&CK mapper page."""
     posts = {
         'mode': gv.AI_MODEL,
         'page': 1,
@@ -132,6 +139,7 @@ def textatkupload():
 #-----------------------------------------------------------------------------
 @app.route('/filecweupload', methods = ['POST', 'GET'])  
 def filecweupload():
+    """ Handle the threats report file upload from MITRE-CWE matcher page."""
     posts = {
         'mode': gv.AI_MODEL, 
         'page': 2,
@@ -147,6 +155,7 @@ def filecweupload():
 #-----------------------------------------------------------------------------
 @app.route('/textcweupload', methods = ['POST', 'GET'])  
 def textcweupload():
+    """ Handle the threats description contents upload from MITRE-CWE matcher page."""
     posts = {
         'mode': gv.AI_MODEL,
         'page': 2,
@@ -164,7 +173,8 @@ def textcweupload():
 @socketio.event
 def connect():
     gv.gWeblogCount = 0
-    emit('serv_response', {'data': 'MITRE-ATT&CK Mapper Ready', 'count': gv.gWeblogCount})
+    emit('serv_response', 
+         {'data': 'LLM-LangChain Ready', 'count': gv.gWeblogCount, 'logType':'ATK'})
 
 @socketio.event
 def cli_request(message):
@@ -176,7 +186,7 @@ def cli_request(message):
                 socketio.emit('file_ready', {'filename': gv.gAppParmDict['rstName'], 'content': fh.read()})
     else:
         emit('serv_response',
-             {'data': message['data'], 'count': session['receive_count']})
+             {'data': message['data'], 'count': session['receive_count'], 'logType':'ATK'})
     
 @socketio.on('startprocess')
 def startProcess(data):
@@ -184,6 +194,7 @@ def startProcess(data):
     gv.iAppDataMgr.startProcess()
     emit('startprocess', {'data': 'Starting to process thread source: %s' %str(gv.gAppParmDict['srcName'])})
 
+#-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':
     #app.run(host="0.0.0.0", port=5000,  debug=False, threaded=True)

@@ -140,6 +140,31 @@ The main difference and relationship between the MITRE CWE and ATT&CK is shown b
 
 
 
+#### CVE and MITRE CWE
+
+CVE provides identifiers for specific vulnerabilities, CWE catalogs common weaknesses and vulnerabilities. CWE provides a broader catalog of common types of weaknesses that can lead to CVE(s).CVE entries often reference CWE entries to provide additional context about the underlying weakness being exploited.
+
+**CVE (Common Vulnerabilities and Exposures)**:
+
+- CVE is a dictionary of publicly disclosed cybersecurity vulnerabilities and exposures. Each CVE ID represents a unique identifier for a specific security vulnerability.
+- CVE IDs are assigned to vulnerabilities by CVE Numbering Authorities (CNAs), which are organizations authorized by MITRE to assign CVE IDs.
+
+For example, a CVE entry might describe a specific vulnerability in a software product, along with details on how it can be exploited and potential impacts. The user can track the which CWE the CVE belongs to then find the other similar or related vulnerabilities (CVE) or the user want to search a general type of vulnerabilities he can go to the CWE then find the the detail specific type of CVE(s).
+
+
+
+#### APT and MITRE ATT&CK
+
+MITRE ATT&CK describes adversary behavior and techniques, and APTs are sophisticated cyberattacks that may leverage vulnerabilities, weaknesses, and techniques described by CVE, CWE, and ATT&CK.
+
+**APT (Advanced Persistent Threat)**:
+
+- APT refers to a sophisticated, long-term cyberattack launched by a well-funded and highly skilled adversary.
+- APTs often involve multiple stages and techniques (TTP), including reconnaissance, initial access, lateral movement, and data exfiltration.
+- While APTs are not directly related to CVE, CWE, they may leverage vulnerabilities identified by CVE, exploit weaknesses cataloged in CWE, and employ techniques described in ATT&CK to achieve their objectives.
+
+
+
 #### Large Language Models Prompt Engineering
 
 LLM (Large Language Models) prompt engineering refers to the process of crafting or designing input prompts to effectively elicit desired responses from language models like GPT (Generative Pre-trained Transformer). With LLMs, the prompt plays a crucial role in guiding the model to generate relevant and coherent outputs. Prompt engineering involves considering various factors such as the wording, structure, context, and task-specific instructions to optimize the performance of the model.
@@ -148,7 +173,44 @@ Effective prompt engineering can significantly influence the quality, relevance,
 
 This process often involves experimentation, iteration, and fine-tuning to find the most effective prompts for a given task or application. Prompt engineering is particularly important in applications such as natural language understanding, text generation, chatbots, and language-based AI systems, where the quality of the generated text directly impacts user experience and task performance.
 
+![](doc/img/title.png)
+
 In this program we use the language chain tool langchain https://www.langchain.com/langchain to build the continues conversation with the `OpenAI GPT4` and `OpenAI GPT-3.5 Turbo`. If you want to use other LLM such as the google bard please refer to the langchain API document. 
+
+
+
+------
+
+#### Program Setup
+
+##### Development Environment
+
+- python 3.8.2rc2+ [Windows11]
+
+##### Additional Lib/Software Need
+
+- OpenAI-API Key : https://openai.com/blog/openai-api 
+- Flask: https://flask.palletsprojects.com/en/3.0.x/ , install `pip install Flask`
+- Flask-SocketIO: https://flask-socketio.readthedocs.io/en/latest/ , install `pip install Flask-SocketIO`
+- LangChain: https://python.langchain.com/docs/get_started/introduction, `install pip install langchain`
+
+##### Hardware Needed : None
+
+##### Program Files List 
+
+| Program File                   | Execution Env | Description                                                  |
+| ------------------------------ | ------------- | ------------------------------------------------------------ |
+| src/threats2MitreApp.py        | python 3.8    | This module is the main web interface to call the AI-llm MITRE ATT&CK-Mapper/ CWE-Matcher module to generate the related report |
+| src/threats2MitreAppDataMgr.py | python 3.8    | Data manager class running in the sub-thread to handle all the mapping and matching request from the web page. |
+| threats2MitreGlobal.py         | python 3.8    | Global Constant, parameter, instance of `threats2MitreApp.py` and |
+| threats2MitreRun.py            | python3.8     | This module will load the threats scenario description from the file and call the AI-llm MITRE ATT&CK-Mapper/ CWE-Matcher module to generate the related report. |
+| threats2MitreUtils.py          | python3.8     | This module will provide two LLM-AI MITRE frame work mapper module llmMITREMapper and llmMITREMatcher |
+| config.txt                     | txt           | config file                                                  |
+| templates/*.html               |               | All the webpage html file.                                   |
+| static/*                       |               | All the material files(*.css, *.png, *.js) file use by the webpage. |
+| lib/*.py                       | python3.8     | All the library file.                                        |
+| ScenarioBank/*.txt             |               | All the threats description files.                           |
+| ReportFolder/*.json            |               | All the generated reprot files.                              |
 
 
 
@@ -275,12 +337,22 @@ Open the browser and access the URL: http://127.0.0.1:5000/ and select the "MITR
 
 
 
+------
 
+### Reference 
 
+- MITRO CWE link: https://cwe.mitre.org/index.html
 
+- MITRO ATT&CK: https://attack.mitre.org/
 
 
 
 ------
 
-> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 03/01/2024, , if you have any problem please free to message me.
+### Problem and Solution
+
+Refer to `doc/ProblemAndSolution.md`
+
+------
+
+> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 01/03/2024, , if you have any problem please free to message me.
