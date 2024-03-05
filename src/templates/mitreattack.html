@@ -75,7 +75,7 @@
   </li>
 
   <li class="list-group-item">
-    <h4 class="text-warning" > Step 3. Process the threats description by AI-LLM</h4>
+    <h4 class="text-warning" > Step 3. Process the threats description by AI-LLM ATT&CK Mapper</h4>
     {% if posts is not none and 'filename' in posts %}
       <div class="d-flex flex-row">
         <div class="p-2">Current uploaded src: <b class="text-warning"> {{ posts['filename'] }} </b> </div>
@@ -135,11 +135,13 @@
     // to the client. The data is then displayed in the "Received"
     // section of the page.
     socket.on('serv_response', function (msg, cb) {
-      $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-      if (msg.data == 'Downloading result...') {
-        socket.emit('cli_request', { data: 'download' });
-        document.getElementById('progspinner').style.display = "none";
-        document.getElementById('startprocess').style.display = "block";
+      if(msg.logType == 'ATK') {
+        $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+        if (msg.data == 'Downloading result...') {
+          socket.emit('cli_request', { data: 'download' });
+          document.getElementById('progspinner').style.display = "none";
+          document.getElementById('startprocess').style.display = "block";
+        }
       }
       if (cb)
         cb();
@@ -150,7 +152,7 @@
       var url = URL.createObjectURL(blob);
       var link = document.createElement('a');
       link.href = url;
-      link.download = data.filename + '_ATK_Rst.json';
+      link.download = data.filename;
       link.click();
       URL.revokeObjectURL(link.href);
     })

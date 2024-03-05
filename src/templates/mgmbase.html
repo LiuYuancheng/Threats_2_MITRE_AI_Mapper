@@ -5,6 +5,7 @@
 <div class="row">
     <div class="col-sm-2">
         <div class="list-group">
+
             {% if posts['page'] == 0 %}
                 <a href="{{ url_for('index')}}" class="list-group-item list-group-item-action bg-secondary">Introduction</a>
             {% else %}
@@ -19,9 +20,9 @@
 
 
             {% if posts['page'] == 2 %}
-                <a href="#" class="list-group-item list-group-item-action bg-secondary">MITRE-CWE matcher</a>
+                <a href="{{ url_for('mitrecwe')}}" class="list-group-item list-group-item-action bg-secondary">MITRE-CWE matcher</a>
             {% else %}
-                <a href="#" class="list-group-item list-group-item-action">MITRE-CWE matcher</a>
+                <a href="{{ url_for('mitrecwe')}}" class="list-group-item list-group-item-action">MITRE-CWE matcher</a>
             {% endif %}
 
             {% if posts['page'] == 3 %}

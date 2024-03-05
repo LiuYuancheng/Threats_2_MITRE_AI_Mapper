@@ -14,6 +14,7 @@
 import os
 import json
 import time
+from datetime import datetime
 import threading
 import threats2MitreGlobal as gv
 from threats2MitreUtils import llmMITREMapper, llmMITRECWEMatcher
@@ -46,6 +47,30 @@ def loadScenarioFromFile(scenarioFile):
     return scenarioStr
 
 #-----------------------------------------------------------------------------
+def creatReport(dataDict):
+    """Generate the mapping/matching report.
+        Args:
+            dataDict (dict): map/match result dictionary.
+    """
+    now = datetime.now()
+    dateTime = now.strftime("%Y_%m_%d_%H_%M_%S")
+    dataDict['Time'] = dateTime  
+    fileExtention =  "_Cwe_%s.json" %str(dateTime) if dataDict['ReportType'] == 'CWE' else "_Atk_%s.json" %str(dateTime)
+    reportName = str(dataDict['ScenarioName']).replace('.txt', fileExtention)
+    gv.gAppParmDict['rstName'] = reportName
+    reportPath= os.path.join(gv.gRstFolder, reportName)
+    jsonStr = json.dumps(dataDict, indent=4)
+    try:
+        with open(reportPath, "w") as outfile:
+            outfile.write(jsonStr)
+        gv.gDebugPrint("creatReport(): Report file created: %s" %str(reportPath),
+                        logType=gv.LOG_INFO)
+    except Exception as err:
+        gv.gDebugPrint("creatReport(): Error write the report file: %s" %str(err),
+                    logType=gv.LOG_ERR)
+    return reportPath
+
+#-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 class DataManager(threading.Thread):
 
@@ -55,13 +80,15 @@ class DataManager(threading.Thread):
         os.environ["OPENAI_API_KEY"] = gv.API_KEY
         # Init the data manager
         self.attackMapper = llmMITREMapper(openAIkey=gv.API_KEY)
+        self.cweMatch = llmMITRECWEMatcher(openAIkey=gv.API_KEY)
         self.startProFlg = False
         self.terminate = False 
 
     def updateWebLog(self, logMsg, logType='ATK'):
         if gv.iSocketIO:
             gv.gWeblogCount +=1
-            gv.iSocketIO.emit('serv_response',{'data': str(logMsg), 'count': gv.gWeblogCount})
+            gv.gDebugPrint(logMsg, logType=gv.LOG_INFO)
+            gv.iSocketIO.emit('serv_response',{'data': str(logMsg), 'count': gv.gWeblogCount, 'logType':str(logType)})
 
 #-----------------------------------------------------------------------------
     def run(self):
@@ -71,7 +98,10 @@ class DataManager(threading.Thread):
         time.sleep(1)  # sleep 1 second to wait socketIO start to run.
         while not self.terminate:
             if self.startProFlg:
-                self.processScenarioFile(gv.gAppParmDict['srcName'])
+                if gv.gAppParmDict['rstType'] == 'ATK':
+                    self.processScenario2ATK(gv.gAppParmDict['srcName'])
+                else:
+                    self.processScenario2CWE(gv.gAppParmDict['srcName'])
                 self.startProFlg = False
             time.sleep(0.5)
 
@@ -80,48 +110,72 @@ class DataManager(threading.Thread):
         self.startProFlg = True
 
     #-----------------------------------------------------------------------------
-    def processScenarioFile(self, scenarioFile):
+    def processScenario2CWE(self, scenarioFile):
+        """ Process the input threats scenario description file and generate the
+            MITRE match report(json format).
+            Args:
+                scenarioFile (str): threats scenario file name.
+        """
+        self.updateWebLog("Start to process scenario file: %s" %str(scenarioFile),
+                logType='CWE')
+        # 1. load thread scenario description file.
+        self.updateWebLog("Step1: load threats report.", logType='CWE')
+        secContent = loadScenarioFromFile(scenarioFile)
+        if secContent is None: return
+        self.updateWebLog("- Finished.", logType='CWE')
+        time.sleep(0.1)
+        # 2. get the CWE mapping result
+        self.updateWebLog("Step2: parse the vulnerabilies.", 
+                       logType='CWE')
+        matchRst = self.cweMatch.getCWEInfo(secContent)
+        cweNum = len(matchRst.keys())
+        self.updateWebLog("- Get %s matched CWE." %str(cweNum), logType='CWE')
+        if cweNum == 0: return
+        time.sleep(0.1)
+        # 3. Generate the  result report.
+        self.updateWebLog("Step3: generate the report file", logType='CWE')
+        resultDict  = {
+            'ScenarioName': scenarioFile,
+            'ReportType': 'CWE'
+        }
+        resultDict.update(matchRst)
+        gv.gAppRptPath = creatReport(resultDict)
+        self.updateWebLog("Downloading result...", logType='CWE')
+
+    #-----------------------------------------------------------------------------
+    def processScenario2ATK(self, scenarioFile):
         """ Process the input threats scenario description file and generate the
             MITRE mapping report(json format) in the current execution foler. 
             Args:
                 scenarioFile (str): threats scenario file name.
         """
-        gv.gDebugPrint("Start to process scenario file: %s" %str(scenarioFile),
-                       logType=gv.LOG_INFO)
+        
+        self.updateWebLog("Start to process scenario file: %s" %str(scenarioFile))
         resultDict = {}
         # 1. load thread scenario description file. 
         secContent = loadScenarioFromFile(scenarioFile)
         if secContent is None: return
         resultDict['ScenarioName'] = scenarioFile
-        gv.gDebugPrint("Step1: Scenario load ready.", logType=gv.LOG_INFO)
-        self.updateWebLog("Step1: Scenario load ready.")
+        resultDict['ReportType'] = 'ATT&CK'
+        self.updateWebLog("-Finished")
+        time.sleep(0.1)
 
         # 2. Summarize the contents and parse all the attack behaviors.
-        gv.gDebugPrint("Step2: Summarize scenario and get attack behaviors list.", 
-                       logType=gv.LOG_INFO)
-        self.updateWebLog("Step2: Summarize scenario and get attack behaviors list.")
+        self.updateWebLog("Step2: summarize scenario and get attack behaviors list.")
         atkBehList = self.attackMapper.getAttackInfo(secContent)
         if atkBehList is None or len(atkBehList) == 0:
             gv.gDebugPrint("No attack behavior found in scenario file: %s" %str(scenarioFile),
                            logType=gv.LOG_WARN)
         resultDict['AttackBehaviors'] = atkBehList
-        gv.gDebugPrint(" - Found %s attack behaviors" %str(len(atkBehList)), 
-                       logType=gv.LOG_INFO)
         self.updateWebLog(" - Found %s attack behaviors" %str(len(atkBehList)))
-
+        time.sleep(0.1)
 
         # 3. Map every attack/malicious behavior
-        gv.gDebugPrint("Step3: Map every behavior to MITRE ATT&CK Matrix (tactic, technique)",
-                       logType=gv.LOG_INFO)
-        self.updateWebLog("Step3: Map every behavior to MITRE ATT&CK Matrix (tactic, technique)")
+        self.updateWebLog("Step3: map every behavior to MITRE ATT&CK Matrix (tactic, technique)")
         mapResult = self.attackMapper.getAttackTechnique(atkBehList)
-        gv.gDebugPrint(" - Found %s mapped MITRE ATT&CK tactic" %str(len(mapResult.keys())),
-                       logType=gv.LOG_INFO)
         self.updateWebLog(" - Found %s mapped MITRE ATT&CK tactic" %str(len(mapResult.keys())))
+        time.sleep(0.1)
 
-        # 4. Verify the mapper result to orignal scenario
-        gv.gDebugPrint("Step4: verifiy whether the technique can match the scenario",
-                       logType=gv.LOG_INFO)
         self.updateWebLog("Step4: verifiy whether the technique can match the scenario")
         self.attackMapper.setVerifier(secContent)
         for tactic in mapResult.keys():
@@ -130,13 +184,9 @@ class DataManager(threading.Thread):
                 rst = self.attackMapper.verifyAttackTechnique(technique)
                 resultDict[tactic][technique] = rst
         self.updateWebLog("- verifiy finished")
+        time.sleep(0.1)
+
         # 5. Generate the mapping result report.
-        gv.gDebugPrint("Step5: Generate the report file", logType=gv.LOG_INFO)
         self.updateWebLog("Step5: Generate the report file",)
-        resultJson = json.dumps(resultDict, indent=4)
-        reportFile = str(scenarioFile).replace('.txt', '_Atk.json')
-        reportPath= os.path.join(gv.dirpath, reportFile)
-        with open(reportPath, "w") as outfile:
-            outfile.write(resultJson)
-        gv.gRstPath = reportPath
+        gv.gAppRptPath = creatReport(resultDict)
         self.updateWebLog("Downloading result...")

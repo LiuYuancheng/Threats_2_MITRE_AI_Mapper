@@ -20,8 +20,8 @@ from werkzeug.utils import secure_filename
 from flask_socketio import SocketIO, emit # pip install Flask-SocketIO==5.3.5
 
 import threats2MitreGlobal as gv
-#import threats2MitreAppDataMgr as dataManager
-TestMd= True
+import threats2MitreAppDataMgr as dataManager
+TestMd= False
 
 #-----------------------------------------------------------------------------
 # Init the flask web app program.
@@ -64,7 +64,7 @@ def createThrestsFile(contents):
 gv.gAppParmDict['srcName'] = None
 gv.gAppParmDict['srcPath'] = None
 gv.gAppParmDict['rstType'] = None
-gv.gAppParmDict['rstPath'] = None
+gv.gAppParmDict['rstName'] = None
 
 app = createApp()
 
@@ -89,6 +89,14 @@ def mitreattack():
     posts = {'mode': gv.AI_MODEL,
              'page': 1}
     return render_template('mitreattack.html', async_mode=socketio.async_mode, 
+                           posts=posts)
+
+#-----------------------------------------------------------------------------
+@app.route('/mitrecwe')
+def mitrecwe():
+    posts = {'mode': gv.AI_MODEL,
+             'page': 2}
+    return render_template('mitrecwe.html', async_mode=socketio.async_mode, 
                            posts=posts)
 
 #-----------------------------------------------------------------------------
@@ -121,27 +129,35 @@ def textatkupload():
         if rst: posts['filename'] = gv.gAppParmDict['srcName']
     return render_template('mitreattack.html', posts=posts)
 
-
-@app.route('/fileupload', methods = ['POST', 'GET'])  
-def fileupload():
-    posts = None
+#-----------------------------------------------------------------------------
+@app.route('/filecweupload', methods = ['POST', 'GET'])  
+def filecweupload():
+    posts = {
+        'mode': gv.AI_MODEL, 
+        'page': 2,
+        'filename': None
+    }
     if request.method == 'POST':
         file = request.files['file']
-        print(file.filename)
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        elif file and gv.gCheckFileType(file.filename):
-            filename = secure_filename(file.filename)
-            gv.gSrceName = filename
-            gv.gSrcPath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            gv.gSrcType = filename.rsplit('.', 1)[1].lower()
-            gv.gRstPath = None
-            file.save(gv.gSrcPath)
-            posts = {
-                'mode': gv.gParserMode,
-                'filename': gv.gSrceName}
-    return render_template('index.html', posts=posts)
+        rst = uploadfile(file)
+        gv.gAppParmDict['rstType'] = 'CWE'
+        if rst: posts['filename'] = gv.gAppParmDict['srcName']
+    return render_template('mitrecwe.html', posts=posts)
+
+#-----------------------------------------------------------------------------
+@app.route('/textcweupload', methods = ['POST', 'GET'])  
+def textcweupload():
+    posts = {
+        'mode': gv.AI_MODEL,
+        'page': 2,
+        'filename': None
+    }
+    if request.method == 'POST':
+        data = request.form['text']
+        rst = createThrestsFile(data)
+        gv.gAppParmDict['rstType'] = 'CWE'
+        if rst: posts['filename'] = gv.gAppParmDict['srcName']
+    return render_template('mitrecwe.html', posts=posts)
 
 #-----------------------------------------------------------------------------
 # socketIO communication handling functions. 
@@ -153,11 +169,11 @@ def connect():
 @socketio.event
 def cli_request(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    if message['data'] == 'download' and gv.gRstPath:
-        if os.path.exists(gv.gRstPath):
+    if message['data'] == 'download' and gv.gAppRptPath:
+        if os.path.exists(gv.gAppRptPath):
             gv.gDebugPrint("Download the file.")
-            with open(gv.gRstPath) as fh:
-                socketio.emit('file_ready', {'filename': gv.gSrceName, 'content': fh.read()})
+            with open(gv.gAppRptPath) as fh:
+                socketio.emit('file_ready', {'filename': gv.gAppParmDict['rstName'], 'content': fh.read()})
     else:
         emit('serv_response',
              {'data': message['data'], 'count': session['receive_count']})
@@ -165,8 +181,8 @@ def cli_request(message):
 @socketio.on('startprocess')
 def startProcess(data):
     print('received message: ' + str(data))
-    gv.iDataMgr.startProcess()
-    emit('startprocess', {'data': 'Starting to process MCQ-source: %s' %str(gv.gSrceName)})
+    gv.iAppDataMgr.startProcess()
+    emit('startprocess', {'data': 'Starting to process thread source: %s' %str(gv.gAppParmDict['srcName'])})
 
 #-----------------------------------------------------------------------------
 if __name__ == '__main__':
