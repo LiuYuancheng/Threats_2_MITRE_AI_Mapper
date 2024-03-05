@@ -1,6 +1,6 @@
 {% extends 'mgmbase.html' %}
 
-{% block title %} MCQ Solver Bot {% endblock %}
+{% block title %} User Action scheduler Monitor {% endblock %}
 
 {% block style%}
 <style>
@@ -18,183 +18,75 @@
 <ul class="list-group">
 
   <li class="list-group-item">
-    <h3>  
-      <img src="{{url_for('static', filename='img/mitreAtklogo.png')}}" style="height:40px;"> MITRE-ATT&CK Mapper 
-    </h3>
+    <h3> MCQ-GPT-Bot </h3>
+    <p> We want to create an assistant AI-Bot program which can batch process the multi 
+      choice cyber security exam questions (From different source format : md, url, html, 
+      txt, pdf, json) via OpenAI to get the answers so the researcher can use it to check 
+      the AI's answer correctness rate, AI's performance on solving question on different 
+      fields and do further data analysis. </p>
   </li>
 
   <li class="list-group-item">
-    <h4> Step 1. Select the langChain AI LLM API Module </h4>
-    <form name="modeselect" action="/mdselect" method="POST"  onsubmit="">
-      Set the Mapper AI Module : 
-      <div class="form-check form-check-inline">
-        <input type="radio" name="options" id="option1" value="mode1" > Mode-1 : Open-AI GPT-4  <br>
+    <h4> <span class="badge badge-secondary">Introduction </span> </h4>
+    <p> <b> The MCQ-GPT-Bot will is an automate AI-Bot assistant program which provides below functions: </b>
+    </p>
+
+    <p><b> &#149; Parse multi-choice-questions from different format data source to build the standard question bank files for the further process such as training (data normalization) . </b></p>
+    <p><b> &#149; If the question sources don't content the answer, use OpenAI to get the answer (with or without the scenario prompt) .  </b></p>
+    <p><b> &#149; If the question sources also provide the answer, compare with AI's answer and calculate the AI's correctness rate.</b></p>
+    <p>The program will use the LLM LangChain frame work to implement the communication with the OpenAI-API.  We will also provide a web UI (under development) for the researcher to test their prompt or normal user who want to do quick test.</p>
+  </li>
+
+
+  <li class="list-group-item">
+
+    <div class="row">
+      <div class="col-sm-8">
+        <h4> <span class="badge badge-secondary"> System Structure </span> </h4>
+        <p><b> The program is a single thread program to continuous loading all the question 
+          source files/urls set in the config file, convert to the standard question format, 
+          then based on the question type setup the LLM's scenario prompt and send to the 
+          questions solver to get the AI's solution. If you have multiple OpenAI-API, you can 
+          also config multi-thread with several parser and question solver to increase the 
+          processing efficiency.</b></p>
+
+        <dl>
+          <dt>QuestionParser</dt>
+          <dd> &#149; The MCQ question data parser (QuestionParser) will do the data mining and 
+            normalization step, it will load all the contents from MCQ source files or URL, 
+            use AI to find all the MCQs, then generate the standard question bank data.</dd>
+
+          <dt>McqDataManager</dt>
+          <dd> &#149; The MCA data manager (McqDataManger) will do the data storage and result 
+            archiving step, it will store and questions, AI's answers and format the result. 
+            As we will batch process multiple question source, the data manager will log the 
+            process progress (such as whether a source file's result has been archived) so if 
+            there is program execution interruption happens, when the user run again, the don't 
+            need to process the source from the beginning. </dd>
+
+          <dt> llmMcqSolver  </dt>
+          <dd> &#149; The large language MCQ solver (llmMcqSolver) will fetch the question 
+            from the data manager, preload the MCQ questions scenario prompt to OpenAI, then 
+            call OpenAI API to get the answer and calculate the AI's correctness rate based on 
+            the setting. </dd>
+        </dl>
       </div>
-      <div class="form-check form-check-inline">
-        <input type="radio" name="options" id="option2" value="mode2"> Mode-2 : Open-AI GPT-3.5 Turbo <br>
+      <div class="col-sm-4">
+        <img src="{{url_for('static', filename='img/workflow.png')}}" align="left" class="img-thumbnail" />
+
       </div>
-      <br>
-      Set the Verifier AI Module :
-      <div class="form-check form-check-inline">
-        <input type="radio" name="options1" > Mode-1 : Open-AI GPT-4  <br>
-      </div>
-      <div class="form-check form-check-inline">
-        <input type="radio" name="options1"> Mode-2 : Open-AI GPT-3.5 Turbo <br>
-      </div>
-      <p> Current mapper LLM mode: 
-        <b>
-          {% if posts is none %}
-            Mode-1
-          {% elif 'mode' in posts %}
-            Mode-{{posts['mode']}}
-          {%else%}
-            Mode-1
-          {% endif %}
-        </b>
-        ; Verifier LLM mode: <b> GPT-3 Turbo </b>
-      </p>
-    </form>
+    </div>
+
   </li>
 
   <li class="list-group-item">
-    <h4> Step 2. Select the Threats Decription Source: </h4>
-
-    <div class="form-check form-check-inline">
-      <input type="radio" class="custom-control-input" id="customRadio1" name="example" value="customEx"
-        onchange="toggleDiv('customRadio1')">
-      <label class="custom-control-label" for="customRadio1"> Upload threats description text file </label>
-    </div>
-
-    <div class="form-check form-check-inline">
-      <input type="radio" class="custom-control-input" id="customRadio2" name="example" value="customEx"
-        onchange="toggleDiv('customRadio2')">
-      <label class="custom-control-label" for="customRadio2"> Copy threats description contents directly </label>
-    </div>
-
-    <p> </p>
-
-    <div id="content_1" style="display: none">
-      <form action="/fileupload" method="POST" enctype="multipart/form-data">
-        <div class="input-group">
-          <input type="file" class="form-control" id="customFile" name="file">
-          <input type="submit" value="Upload">
-        </div>
-      </form>
-    </div>
-
-    <div id="content_2" style="display: none">
-      <form>
-        <div class="form-group">
-          <label for="contents"> Threats description contents:</label>
-          <textarea class="form-control" rows="5" id="contents">--- remote this line and copy the Threats description contents here ---
-            </textarea>
-          <input type="submit">
-        </div>
-      </form>
-    </div>
-    <p> </p>
-  </li>
-
-  <li class="list-group-item">
-    <h4> Step 3. Process the Threats description by AI-LLM</h4>
-    {% if posts is not none and 'filename' in posts %}
-    
-      <div class="d-flex flex-row">
-        <div class="p-2"><b> Current uploaded src: </b> {{ posts['filename'] }} </div>
-        <div class="p-2"><form id="startprocess" method="POST" action="#"><input type="submit" value="Start"></form></div>
-        <div class="p-2"><div class="spinner-border text-primary" id="progspinner" style="display: none;"> </div></div>
-      </div>
-    
-    {% else %}
-      <p> Please upload or insert a MCQ source in step 1 </p>
-    {% endif %}
-    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">  
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="#section1">Threats report process process:  </a>
-        </li>
-      </ul>
-    </nav>
-    <div id="section1" class="container-fluid bg-secondary">
-      <div id="log"></div>
-    </div>
+    <h4> <span class="badge badge-secondary"> Current version : </span>
+      <a type="button" class="btn btn-outline-secondary btn-sm"
+        href="https://github.com/LiuYuancheng/MCQ-GPT-Bot" target="_blank">
+        <span class="badge badge-light"> v_0.1.2</span>
+        <span class="spinner-grow spinner-grow-sm"> </span> [Project Github link]
+      </a>
+    </h4>
   </li>
 </ul>
-
-<script>
-  function toggleDiv(radioName) {
-    document.getElementById("content_1").style.display = "none";
-    document.getElementById("content_2").style.display = "none";
-    if (radioName === "customRadio1") {
-      document.getElementById("content_1").style.display = "block";
-    } else if (radioName === "customRadio2") {
-      document.getElementById("content_2").style.display = "block";
-    } 
-  }
-
-  // Add the following code if you want the name of the file appear on select
-  $(".custom-file-input").on("change", function () {
-    var fileName = $(this).val().split("\\").pop();
-    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-  });
-
-  $(document).ready(function () {
-    // Connect to the Socket.IO server.
-    // The connection URL has the following format, relative to the current page:
-    //     http[s]://<domain>:<port>[/<namespace>]
-    var socket = io();
-
-    // Event handler for new connections.
-    // The callback function is invoked when a connection with the
-    // server is established.
-    socket.on('connect', function () {
-      socket.emit('cli_request', { data: 'I\'m connected!' });
-    });
-
-    // Event handler for server sent data.
-    // The callback function is invoked whenever the server emits data
-    // to the client. The data is then displayed in the "Received"
-    // section of the page.
-    socket.on('serv_response', function (msg, cb) {
-      $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
-      if (msg.data == 'Downloading result...') {
-        socket.emit('cli_request', { data: 'download' });
-        document.getElementById('progspinner').style.display = "none";
-        document.getElementById('startprocess').style.display = "block";
-      }
-      if (cb)
-        cb();
-    });
-
-    socket.on('file_ready', function (data) {
-      var blob = new Blob([data.content], { type: 'text/plain' });
-      var url = URL.createObjectURL(blob);
-      var link = document.createElement('a');
-      link.href = url;
-      link.download = data.filename + '_ATK_Rst.json';
-      link.click();
-      URL.revokeObjectURL(link.href);
-    })
-
-    // Test response received from server is handled here
-    socket.on('startprocess', function (msg) {
-      $('#log').append('<br>' + $('<div/>').text(msg.data).html());
-    })
-
-    // Handlers for the different forms in the page.
-    // These accept data from the user and send it to the server in a
-    // variety of ways
-    $('form#startprocess').submit(function (event) {
-      document.getElementById('log').innerHTML = ""
-      document.getElementById('progspinner').style.display = "block";
-      document.getElementById('startprocess').style.display = "none";
-      socket.emit('startprocess', { data: 'Start to process file' });
-
-      return false;
-    });
-  });
-
-</script>
-
-
 {% endblock %}

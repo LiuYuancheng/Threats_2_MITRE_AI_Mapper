@@ -6,15 +6,15 @@
     <div class="col-sm-2">
         <div class="list-group">
             {% if posts['page'] == 0 %}
-                <a href="#" class="list-group-item list-group-item-action bg-secondary">Introduction</a>
+                <a href="{{ url_for('index')}}" class="list-group-item list-group-item-action bg-secondary">Introduction</a>
             {% else %}
-                <a href="#" class="list-group-item list-group-item-action">Introduction</a>
+                <a href="{{ url_for('index')}}" class="list-group-item list-group-item-action">Introduction</a>
             {% endif %}
-
+            
             {% if posts['page'] == 1 %}
-                <a href="#" class="list-group-item list-group-item-action bg-secondary">MITRE-ATT&CK mapper</a>
+                <a href="{{ url_for('mitreattack')}}" class="list-group-item list-group-item-action bg-secondary">MITRE-ATT&CK mapper</a>
             {% else %}
-                <a href="#" class="list-group-item list-group-item-action">Introduction</a>
+                <a href="{{ url_for('mitreattack')}}" class="list-group-item list-group-item-action">MITRE-ATT&CK mapper</a>
             {% endif %}
 
 
@@ -36,6 +36,10 @@
     <div class="col-sm-10">
         {% block mgmContent %} 
         {% endblock %}
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-danger"> {{message}}</div>
+        {% endfor %}
+    
     </div>
 </div>
 {% endblock %}

@@ -18,7 +18,6 @@ import threading
 import threats2MitreGlobal as gv
 from threats2MitreUtils import llmMITREMapper, llmMITRECWEMatcher
 
-
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 def loadScenarioFromFile(scenarioFile):
@@ -27,6 +26,9 @@ def loadScenarioFromFile(scenarioFile):
             scenarioFile (str): fileName. The file need to be put in the scenario
                 bank folder defined in the config file.
     """
+    if not gv.gCheckFileType(scenarioFile): 
+        gv.gDebugPrint("Error: The file need to be *.txt format.", logType=gv.LOG_ERR)
+        return None
     filePath = os.path.join(gv.gSceBank, scenarioFile)
     scenarioStr = None 
     if os.path.exists(filePath):
@@ -56,7 +58,7 @@ class DataManager(threading.Thread):
         self.startProFlg = False
         self.terminate = False 
 
-    def updateWebLog(self, logMsg):
+    def updateWebLog(self, logMsg, logType='ATK'):
         if gv.iSocketIO:
             gv.gWeblogCount +=1
             gv.iSocketIO.emit('serv_response',{'data': str(logMsg), 'count': gv.gWeblogCount})
@@ -69,11 +71,12 @@ class DataManager(threading.Thread):
         time.sleep(1)  # sleep 1 second to wait socketIO start to run.
         while not self.terminate:
             if self.startProFlg:
-                self.processScenarioFile("railwayITattackReport.txt")
+                self.processScenarioFile(gv.gAppParmDict['srcName'])
                 self.startProFlg = False
             time.sleep(0.5)
 
     def startProcess(self):
+        gv.gWeblogCount = 0
         self.startProFlg = True
 
     #-----------------------------------------------------------------------------

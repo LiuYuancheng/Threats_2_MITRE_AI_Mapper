@@ -15,7 +15,7 @@
 import os
 import threading
 
-from flask import Flask, render_template, flash, redirect, request, session
+from flask import Flask, render_template, flash, redirect, url_for, request, session
 from werkzeug.utils import secure_filename
 from flask_socketio import SocketIO, emit # pip install Flask-SocketIO==5.3.5
 
@@ -37,11 +37,33 @@ def createApp():
         gv.iAppDataMgr.start()
     return app
 
+def uploadfile(file):
+    """ upload a file from the post request"""
+    print(file.filename)
+    if file.filename == '':
+        flash('No selected file')
+    elif file and gv.gCheckFileType(file.filename):
+        filename = secure_filename(file.filename)
+        gv.gAppParmDict['srcName'] = filename
+        gv.gAppParmDict['srcPath'] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(gv.gAppParmDict['srcPath'])
+        return True
+    return False 
+
+def createThrestsFile(contents):
+    filename = 'tempScenarioFile.txt'
+    gv.gAppParmDict['srcName'] = filename
+    gv.gAppParmDict['srcPath'] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    with open(gv.gAppParmDict['srcPath'] , "w") as outfile:
+        outfile.write(contents)
+    return True
+
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 # Init the app used globals
 gv.gAppParmDict['srcName'] = None
 gv.gAppParmDict['srcPath'] = None
+gv.gAppParmDict['rstType'] = None
 gv.gAppParmDict['rstPath'] = None
 
 app = createApp()
@@ -58,11 +80,47 @@ threadLock = threading.Lock()
 # web request handling functions. 
 @app.route('/')
 def index():
-    posts = {'mode': gv.gParserMode,
-             'page': 1
-             }
-    return render_template('index.html', async_mode=socketio.async_mode, 
+    posts = {'page': 0}
+    return render_template('index.html', posts=posts)
+
+#-----------------------------------------------------------------------------
+@app.route('/mitreattack')
+def mitreattack():
+    posts = {'mode': gv.AI_MODEL,
+             'page': 1}
+    return render_template('mitreattack.html', async_mode=socketio.async_mode, 
                            posts=posts)
+
+#-----------------------------------------------------------------------------
+@app.route('/fileatkupload', methods = ['POST', 'GET'])  
+def fileatkupload():
+    posts = {
+        'mode': gv.AI_MODEL, 
+        'page': 1,
+        'filename': None
+    }
+    if request.method == 'POST':
+        file = request.files['file']
+        rst = uploadfile(file)
+        gv.gAppParmDict['rstType'] = 'ATK'
+        if rst: posts['filename'] = gv.gAppParmDict['srcName']
+    return render_template('mitreattack.html', posts=posts)
+
+#-----------------------------------------------------------------------------
+@app.route('/textatkupload', methods = ['POST', 'GET'])  
+def textatkupload():
+    posts = {
+        'mode': gv.AI_MODEL,
+        'page': 1,
+        'filename': None
+    }
+    if request.method == 'POST':
+        data = request.form['text']
+        rst = createThrestsFile(data)
+        gv.gAppParmDict['rstType'] = 'ATK'
+        if rst: posts['filename'] = gv.gAppParmDict['srcName']
+    return render_template('mitreattack.html', posts=posts)
+
 
 @app.route('/fileupload', methods = ['POST', 'GET'])  
 def fileupload():
