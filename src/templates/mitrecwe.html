@@ -9,21 +9,22 @@
 <ul class="list-group">
 
   <li class="list-group-item">
-    <h3 class="text-warning">  
-      <img src="{{url_for('static', filename='img/mitreAtklogo.png')}}" style="height:40px;"> MITRE-ATT&CK Mapper 
+    <h3 class="text-primary">  
+      <img src="{{url_for('static', filename='img/mitreCwelogo.png')}}" style="height:40px;"> MITRE-CWE Macher 
     </h3>
+
     <p>
       <b>
-      MITRE ATT&CK (Adversarial Tactics, Techniques, and Common Knowledge) is a knowledge 
-      base maintained by MITRE that documents the tactics, techniques, and procedures (TTPs) 
-      used by adversaries during cyberattacks. ATT&CK is focused on understanding and defending 
-      against real-world cyber threats by mapping out the tactics and techniques used by adversaries.
+        MITRE CWE (Common Weakness Enumeration) is a community-developed list of common software and 
+        hardware weaknesses, faults, and vulnerabilities. CWE is focused on identifying and classifying 
+        vulnerabilities and weaknesses to help organizations understand and address security issues in 
+        their software and systems.
       </b>
     </p>
   </li>
 
   <li class="list-group-item">
-    <h4 class="text-warning" > Step 1. Select the langChain AI LLM API Module </h4>
+    <h4 class="text-primary" > Step 1. Select the langChain AI LLM API Module </h4>
     <form name="modeselect" action="/mdselect" method="POST"  onsubmit="">
       Set the Mapper AI Module : 
       <div class="form-check form-check-inline">
@@ -46,7 +47,7 @@
   </li>
 
   <li class="list-group-item">
-    <h4 class="text-warning" > Step 2. Select the threats decription source: </h4>
+    <h4 class="text-primary" > Step 2. Select the threats decription source: </h4>
 
     <div class="form-check form-check-inline">
       <input type="radio" class="custom-control-input" id="customRadio1" name="example" value="customEx"
@@ -61,7 +62,7 @@
     </div>
 
     <div id="content_1" style="display: none">
-      <form action="/fileatkupload" method="POST" enctype="multipart/form-data">
+      <form action="/filecweupload" method="POST" enctype="multipart/form-data">
         <div class="input-group">
           <input type="file" class="form-control" id="customFile" name="file">
           <input type="submit" value="Upload">
@@ -70,7 +71,7 @@
     </div>
 
     <div id="content_2" style="display: none">
-      <form action="/textatkupload" method="POST" enctype="multipart/form-data">
+      <form action="/textcweupload" method="POST" enctype="multipart/form-data">
         <div class="form-group">
           <label for="contents"> Threats description contents:</label>
           <textarea class="form-control" rows="5" id="contents" name="text">--- remote this line and copy the threats description contents here ---
@@ -83,10 +84,10 @@
   </li>
 
   <li class="list-group-item">
-    <h4 class="text-warning" > Step 3. Process the threats description by AI-LLM ATT&CK Mapper</h4>
+    <h4 class="text-primary" > Step 3. Process the threats description by AI-LLM CWE Matcher</h4>
     {% if posts is not none and 'filename' in posts %}
       <div class="d-flex flex-row">
-        <div class="p-2">Current uploaded src: <b class="text-warning"> {{ posts['filename'] }} </b> </div>
+        <div class="p-2">Current uploaded src: <b class="text-primary"> {{ posts['filename'] }} </b> </div>
         {% if not posts['filename'] is none %}
           <div class="p-2"><form id="startprocess" method="POST" action="#"><input type="submit" value="Start"></form></div>
         {% endif %}
@@ -143,7 +144,7 @@
     // to the client. The data is then displayed in the "Received"
     // section of the page.
     socket.on('serv_response', function (msg, cb) {
-      if(msg.logType == 'ATK') {
+      if(msg.logType == 'CWE') {
         $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
         if (msg.data == 'Downloading result...') {
           socket.emit('cli_request', { data: 'download' });

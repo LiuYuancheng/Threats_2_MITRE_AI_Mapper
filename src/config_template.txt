@@ -10,10 +10,16 @@ AI_MODEL:<GPT-4>
 
 # set the AI model apply to the verifier, if not set program will use the same as the mapper.
 VF_KEY:<openAI key>
-AI_MODEL:<gpt-3.5-turbo-16k>
+VF_AI_MODEL:<gpt-3.5-turbo-16k>
 
 # Scenario bank folder (folder to store the threats report srource)
 SCE_BANK:ScenarioBank
 
 # Output folder (folder to store the threats report)
-OUT_FOLDER:Output
+RST_FOLDER:ReportFolder
+
+#-----------------------------------------------------------------------------
+# Init the Flask app parameters
+FLASK_SER_PORT:5000
+FLASK_DEBUG_MD:False
+FLASK_MULTI_TH:True
