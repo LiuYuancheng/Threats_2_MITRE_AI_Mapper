@@ -24,11 +24,11 @@
             {% else %}
                 <a href="{{ url_for('mitrecwe')}}" class="list-group-item list-group-item-action">MITRE-CWE matcher</a>
             {% endif %}
-
+            
             {% if posts['page'] == 3 %}
-                <a href="#" class="list-group-item list-group-item-action bg-secondary">Configuration</a>
+                <a href="{{ url_for('configuration')}}" class="list-group-item list-group-item-action bg-secondary">Configuration</a>
             {% else %}
-                <a href="#" class="list-group-item list-group-item-action">Configuration</a>
+                <a href="{{ url_for('configuration')}}" class="list-group-item list-group-item-action">Configuration</a>
             {% endif %}
 
         </div>

@@ -7,8 +7,9 @@
 # Author:      Yuancheng Liu
 #
 # Created:     2014/01/15
-# Copyright:   
-# License:     
+# Version:     v_0.1.0
+# Copyright:   Copyright (c) 2014 LiuYuancheng
+# License:     MIT License    
 #-----------------------------------------------------------------------------
 
 """
@@ -27,8 +28,4 @@ provide API to load the not stand text format config file's data.
 
 2. Log.py: 
 provide the addtional log function to do the program execution log archiving feature.
-
-3. UdoCom: 
-provide UDP communication API in the distribution system.
-
 """

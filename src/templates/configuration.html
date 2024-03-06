@@ -1,0 +1,106 @@
+{% extends 'mgmbase.html' %}
+
+{% block title %} Threats To MITRE Configuration {% endblock %}
+
+{% block style%} {% endblock %}
+
+{% block mgmContent %}
+
+<h5> Prompt Config </h5>
+
+<div id="accordion">
+
+    <div class="card">
+      <div class="card-header">
+        <a class="btn " data-bs-toggle="collapse" href="#collapseOne">
+          <b class="text-success" > OpenAI API Mode </b>
+        </a>
+      </div>
+      <div id="collapseOne" class="collapse show" data-bs-parent="#accordion">
+        <div class="card-body">
+            {{ posts['mode'] }}
+        </div>
+      </div>
+    </div>
+  
+    <div class="card">
+      <div class="card-header">
+        <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
+            <b class="text-success" > OpenAI API Mode </b>
+        </a>
+      </div>
+      <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
+        <div class="card-body">
+          sk-*****************************************************
+        </div>
+      </div>
+    </div>
+  
+    <div class="card">
+      <div class="card-header">
+        <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseThree">
+            <b class="text-success" > Prompt use to guide AI to analyze the attack scenario </b>
+        </a>
+      </div>
+      <div id="collapseThree" class="collapse" data-bs-parent="#accordion">
+        <div class="card-body">
+            {{ posts['gSceAnalysePrompt'] }}
+        </div>
+      </div>
+    </div>
+  
+    <div class="card">
+        <div class="card-header">
+          <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseFour">
+              <b class="text-warning" > Prompt used to guide AI to map behaviors to MITRE-ATT&CK </b>
+          </a>
+        </div>
+        <div id="collapseFour" class="collapse" data-bs-parent="#accordion">
+          <div class="card-body">
+              {{ posts['gBeh2MitrePrompt'] }}
+          </div>
+        </div>
+      </div>
+  
+      <div class="card">
+        <div class="card-header">
+          <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseFive">
+              <b class="text-warning" > Prompt used to guide AI to verify mapping reuslt </b>
+          </a>
+        </div>
+        <div id="collapseFive" class="collapse" data-bs-parent="#accordion">
+          <div class="card-body">
+              {{ posts['gMitreVerifyPrompt'] }}
+          </div>
+        </div>
+      </div>
+  
+      <div class="card">
+        <div class="card-header">
+          <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseSix">
+              <b class="text-primary" > Prompt used to guide AI to match scenario to MITRE CWE </b>
+          </a>
+        </div>
+        <div id="collapseSix" class="collapse" data-bs-parent="#accordion">
+          <div class="card-body">
+              {{ posts['gSceVulCheckPrompt'] }}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseSeven">
+              <b class="text-primary" > Prompt used to guide AI to verify match result. </b>
+          </a>
+        </div>
+        <div id="collapseSeven" class="collapse" data-bs-parent="#accordion">
+          <div class="card-body">
+              {{ posts['gSce2MitrePrompt'] }}
+          </div>
+        </div>
+      </div>
+
+</div>
+
+{% endblock %}

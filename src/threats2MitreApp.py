@@ -105,6 +105,21 @@ def mitrecwe():
                            posts=posts)
 
 #-----------------------------------------------------------------------------
+@app.route('/configuration')
+def configuration():
+    """ route to the configuration page."""
+    posts = {'mode': gv.AI_MODEL,
+             'key': gv.API_KEY,
+             'gSceAnalysePrompt': gv.gSceAnalysePrompt,
+             'gBeh2MitrePrompt': gv.gBeh2MitrePrompt,
+             'gMitreVerifyPrompt': gv.gMitreVerifyPrompt,
+             'gSce2MitrePrompt': gv.gSce2MitrePrompt,
+             'gSceVulCheckPrompt': gv.gSceVulCheckPrompt,
+             'page': 3
+             }
+    return render_template('configuration.html', posts=posts)
+
+#-----------------------------------------------------------------------------
 @app.route('/fileatkupload', methods = ['POST', 'GET'])
 def fileatkupload():
     """ Handle the threats report file upload from MITRE-ATT&CK mapper page."""

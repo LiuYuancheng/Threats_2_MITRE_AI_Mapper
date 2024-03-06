@@ -11,8 +11,8 @@
 #
 # Created:     2019/11/12
 # Version:     v_0.1
-# Copyright:   n.a
-# License:     n.a
+# Copyright:   Copyright (c) 2019 LiuYuancheng
+# License:     MIT License    
 #-----------------------------------------------------------------------------
 """ Program Design:
     Some times we want to read some program's simple customized config files which 

@@ -13,7 +13,11 @@ The general program system view (General workflow, MITRE Mapper and Matcher Web 
 
 ![](doc/img/overview.png)
 
-Version `v0.1.1`
+```
+version:     v0.1.2
+Copyright:   Copyright (c) 2024 LiuYuancheng
+License:     MIT License   
+```
 
 **Table of Contents**
 
@@ -42,7 +46,7 @@ Version `v0.1.1`
     + [Reference](#reference)
     + [Problem and Solution](#problem-and-solution)
 
-
+`version v0.1.2`
 
 ------
 
@@ -362,6 +366,10 @@ Open the browser and access the URL: http://127.0.0.1:5000/ and select the "MITR
 **Step3**: After upload finished, the process start button will show up then press the "Start" button to start the process.  When the process finished, the browser will automated download the *.json format report. (As shown below, the report's file name will be under format `tempScenarioFile_Cwe_YYYY_MM_DD.json` )
 
 ![](doc/img/cweFinished.png)
+
+To Set the API and adjust the prompt string, please refer to the configuration page:
+
+![](doc/img/configPage.png)
 
 
 
