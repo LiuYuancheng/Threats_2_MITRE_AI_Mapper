@@ -391,4 +391,4 @@ Refer to `doc/ProblemAndSolution.md`
 
 ------
 
-> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 01/03/2024, , if you have any problem please free to message me.
+> Last edit by LiuYuancheng(liu_yuan_cheng@hotmail.com) at 01/03/2024, if you have any problem please free to message me.

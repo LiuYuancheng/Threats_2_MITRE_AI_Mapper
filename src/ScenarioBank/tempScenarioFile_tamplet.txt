@@ -1,0 +1,5 @@
+This scenario illustrates how the red team attacker, Alice, 
+constructs a malicious macro within a MS-Office Word document (CVE-2015-1641). 
+She then embeds an auto-phishing email malware into the document, disguising all 
+malware as a harmless lucky draw USB driver. Subsequently, Alice sends this document 
+to the unsuspecting victim Bob.
