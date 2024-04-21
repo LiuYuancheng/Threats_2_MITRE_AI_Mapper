@@ -21,7 +21,7 @@ from flask_socketio import SocketIO, emit # pip install Flask-SocketIO==5.3.5
 
 import threats2MitreGlobal as gv
 import threats2MitreAppDataMgr as dataManager
-TestMd= False
+TestMd = False
 
 #-----------------------------------------------------------------------------
 # Init the flask web app program.
