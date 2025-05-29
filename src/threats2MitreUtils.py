@@ -5,7 +5,7 @@
 # Purpose:     This module will provide two LLM-AI MITRE frame work mapper module
 #              - llmMITREMapper : map the attack scenario attack flow path to the 
 #                   MITRE ATT&CK Matrix to get the related tactic and technique.
-#              - llmMITREMatcher : match the vulnerbilities appeared in the attack
+#              - llmMITREMatcher : match the vulnerabilities appeared in the attack
 #                   scenario to MITRE CWE frame work to get the related CWE. 
 #                
 # Author:      Yuancheng Liu
@@ -107,7 +107,7 @@ class llmMITREMapper(object):
         MITRE ATT&CK Matrix to get the related tactic and technique.
     """
     def __init__(self, openAIkey=None) -> None:
-        # init the openAI conersation 
+        # init the openAI conversation 
         if openAIkey: os.environ["OPENAI_API_KEY"] = openAIkey
         self.llm = ChatOpenAI(temperature=0, model_name=gv.AI_MODEL)
         self.llmAnalyzerChain = None 
@@ -158,7 +158,7 @@ class llmMITREMapper(object):
     def setVerifier(self, scenarioStr, verifyTemplate=gv.gMitreVerifyPrompt):
         """ Init the scenario technique verifier.
             Args:
-                scenarioStr (str): orignal attack scenario description(ASD) string
+                scenarioStr (str): original attack scenario description(ASD) string
         """
         self.llmTecVerifyChain = None 
         systemTemplate = verifyTemplate %str(scenarioStr)
@@ -232,7 +232,7 @@ class llmMITREMapper(object):
     
     #-----------------------------------------------------------------------------
     def getBehaviorTechnique(self, behaviorStr):
-        """ Use AI to getthe MITRE ATT&CK TTP for a given behaviors. 
+        """ Use AI to get the MITRE ATT&CK TTP for a given behaviors. 
             Args:
                 behaviorStr (str): _description_
             Returns:
@@ -251,7 +251,7 @@ class llmMITREMapper(object):
 
     #-----------------------------------------------------------------------------
     def verifyAttackTechnique(self, technique):
-        """ Verify whether the technique can be find from the orignal attack scenario
+        """ Verify whether the technique can be find from the original attack scenario
             description (ASD)
             Args:
                 technique (string): _description_
